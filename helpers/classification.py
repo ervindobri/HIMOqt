@@ -1,7 +1,12 @@
+import json
+import operator
 import threading
 import time
-from keras.activations import relu, sigmoid
+from functools import reduce
+
+from keras.activations import relu
 from keras.models import load_model
+from myo._ffi import libmyo
 from tensorflow import keras
 from keras import regularizers
 import myo
@@ -9,23 +14,30 @@ import numpy as np
 from tensorflow.python.keras.activations import softmax
 from tensorflow_addons.callbacks import TQDMProgressBar
 
-import stream_service as Stream
-from constants import *
+import helpers.stream_service as Stream
+from helpers.constants import *
 import matplotlib.pyplot as plt
 import datetime as dt
+
+from helpers.firestore import FirestoreDatabase
+from helpers.uploader import GDriveUploader
+from models.patient import Patient
 
 
 class Classification:
     def __init__(self,
-                 subject_name: str = None,
-                 subject_age: int = 0,
+                 patient: Patient = None,
                  batch_size: int = 10,
                  epochs: int = 300,
                  ):
         self.batch_size = batch_size
         self.epochs = epochs
-        self.subject_name = subject_name
-        self.subject_age = subject_age
+
+        self.patient = patient
+        if patient is not None:
+            self.subject_name = self.patient.name
+            self.subject_age = self.patient.age
+
         self.training_samples = samples * 10
         self.validation_samples = samples
         self.all_training_set = []
@@ -37,6 +49,7 @@ class Classification:
         self.validation_averages = int(self.validation_samples / (batch_size / 10))
         self.all_training_set = {}
         self.all_averages = []
+        self.all_raw = []
 
         for i in range(0, self.number_of_gestures):
             self.all_training_set[i] = np.zeros((8, self.training_samples))
@@ -49,6 +62,48 @@ class Classification:
         self.history = None
 
         self.hub = myo.Hub()
+        self.firestore = FirestoreDatabase()
+
+    def set_patient(self, patient):
+        self.patient = patient
+        self.subject_name = self.patient.name
+        self.subject_age = self.patient.age
+
+    def CalculateMeanData(self, streamed_data):
+        training_set = np.absolute(streamed_data)
+        current_average = np.zeros((int(self.training_averages), 8))
+        for i in range(1, self.training_averages + 1):
+            current_average[i - 1, :] = np.mean(training_set[(i - 1) * self.div:i * self.div, :], axis=0)
+
+        return current_average
+
+    def RecordExercise(self, exercise_name):
+        hub = myo.Hub()
+        exercise = self.exercises[0]
+        index = 0
+        result = 0
+        for ex in self.exercises:
+            if ex.name == exercise_name:
+                exercise = ex
+                index = self.exercises.index(ex)
+
+        print("Exercise name:", exercise.name, ", index: ", index)
+        try:
+            listener = Stream.Listener(training_samples)
+            hub.run(listener.on_event, 3000)
+            current_training_set = np.array((data[0]))
+            self.all_raw.append(data[0])
+            result_array = self.CalculateMeanData(current_training_set)
+            self.all_averages[index] = result_array
+            data.clear()
+            result = 1
+        except Exception as e:
+            print(e)
+            result = 0
+
+        print(exercise.name, "data ready! Result:", result)
+        self.hub.stop()
+        return result
 
     def PrepareTrainingData(self):
         for x in range(0, self.number_of_gestures):
@@ -61,7 +116,7 @@ class Classification:
             while True:
                 try:
                     hub = myo.Hub()
-                    listener = Stream.Listener(self.training_samples)
+                    listener = Stream.PrepareListener(self.training_samples)
                     hub.run(listener.on_event, 3000)
                     self.all_training_set[x] = np.array(data)
                     print(self.all_training_set[x].shape)
@@ -77,11 +132,12 @@ class Classification:
             print(exercise.name, "data READY.")
             time.sleep(1)
 
-        conc_data = self.calculateMeanData()
-        self.SaveTrainingData(conc_data)
+        self.save_training_data()
 
     def calculateMeanData(self):
         # Absolutes of foot gesture data
+        print("exercises:", self.number_of_gestures)
+
         for x in range(0, self.number_of_gestures):
             self.all_training_set[x] = np.absolute(self.all_training_set[x])
 
@@ -100,6 +156,7 @@ class Classification:
         model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
         validation_averages = np.zeros((int(self.validation_averages), 8))
         listener = Stream.PredictListener(self.validation_samples)
+
         thread = threading.Thread(target=lambda: self.hub.run_forever(listener.on_event, 100))
         thread.start()
 
@@ -113,7 +170,6 @@ class Classification:
             self.validation_set = np.array(current_data)
             self.validation_set = np.absolute(self.validation_set)
 
-            print(self.validation_set)
             # We add one because iterator below starts from 1
             batches = int(samples / self.div) + 1  # 50/25 => 2+1 = 3
             for i in range(1, batches):
@@ -122,16 +178,28 @@ class Classification:
 
             validation_data = validation_averages
             predictions = model.predict(validation_data, batch_size=validation_data.shape[0])
-            print(validation_data.shape)
 
             predicted_value = np.argmax(predictions[0])
 
             end = time.time()
             data.clear()
-            print(
-                "Predicted:", predicted_value
-                , "Latency:", (end - start) * 1000, "ms"
-            )
+            if predicted_value == 0:
+                if listener.acceleration.y > -0.05:
+                    print("Standing on toes!")
+                else:
+                    print(
+                        "Predicted:", self.exercises[predicted_value].name
+                        , "Latency:", (end - start) * 1000, "ms",
+                        "Accelerometer:", listener.acceleration.y
+
+                    )
+            else:
+                print(
+                    "Predicted:", self.exercises[predicted_value].name
+                    , "Latency:", (end - start) * 1000, "ms",
+                    "Accelerometer:", listener.acceleration.y
+
+                )
             average += (end - start) * 1000
             counter += 1
 
@@ -150,8 +218,32 @@ class Classification:
         else:
             return self.input_data
 
-    def SaveTrainingData(self, training_data):
+    def save_data(self):
         try:
+            self.save_training_data()
+            self.save_raw_data()
+        except Exception as e:
+            print(e)
+
+    def save_raw_data(self):
+        print("Saving patient data to firebase!")
+        try:
+            raw_data = reduce(operator.concat, self.all_raw)
+            np.savetxt(RAW_DATA_PATH + str(self.patient.id) + '.txt', raw_data, fmt='%i')
+            uploader = GDriveUploader()
+            content = {
+                'id': self.patient.id,
+                'age': self.patient.age,
+                'emg': self.all_raw
+            }
+            uploader.upload(str(self.patient.id) + '.json', json.dumps(content))
+            # TODO: save raw data to google drive
+        except Exception as e:
+            print(e)
+
+    def save_training_data(self):
+        try:
+            training_data = np.concatenate(self.all_averages, axis=0)
             np.savetxt(TRAINING_DATA_PATH + self.subject_name + '.txt', training_data, fmt='%i')
             self.input_data = training_data
             print("Saving training data successful!")

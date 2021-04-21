@@ -1,6 +1,6 @@
 import myo
-import classification as clf
-from constants import *
+from helpers import classification as clf
+from helpers.constants import *
 
 
 def main():
@@ -12,11 +12,11 @@ def main():
         subject_age=22,
         batch_size=25,
     )
-    x.PrepareTrainingData()
-    history = x.TrainEMG()
-    x.DisplayResult(history)
+    # x.PrepareTrainingData()
+    # history = x.TrainEMG()
+    # x.DisplayResult(history)
 
-    x.TestLatency(1)
+    x.TestLatency(50)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLineEdit, QToolButton, QStyle
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QLineEdit, QToolButton, QStyle
 
 
 class ButtonLineEdit(QLineEdit):
@@ -16,7 +16,7 @@ class ButtonLineEdit(QLineEdit):
         self.button.setFixedSize(100, 30)
         self.button.setText(button_text)
         # self.button.setStyleSheet('border: 0px; padding: 0px;')
-        self.button.setCursor(QtCore.Qt.ArrowCursor)
+        self.button.setCursor(QtCore.Qt.CursorShape.ArrowCursor)
         self.button.clicked.connect(self.buttonClicked.emit)
 
         frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)

@@ -15,10 +15,12 @@ for proc in psutil.process_iter():
     if proc.name() == PROC_NAME:
         PROC_PATH = proc.exe()
 
+RESOURCES_PATH = os.getcwd() + '\\resources\\'
 DATA_PATH = os.getcwd() + '\\data\\'
 PATIENTS_PATH = os.getcwd() + '\\data\\patients\\'
 RESULT_PATH = os.getcwd() + '\\data\\results\\'
 TRAINING_DATA_PATH = RESULT_PATH + '\\training_data\\'
+RAW_DATA_PATH = RESULT_PATH + 'raw_data\\'
 TRAINING_MODEL_PATH = RESULT_PATH + '\\training_model\\'
 FIGURES_PATH = RESULT_PATH + '\\training_figures\\'
 KEYS = {
@@ -39,14 +41,18 @@ SUPPORTED_KEYS = {
     "S": KeyCode.from_char('s'),
     "D": KeyCode.from_char('d'),
 }
+PREDEFINED_PARAMETERS = ['5', '10', '15']
 
 PREDEFINED_EXERCISES = [
-    Exercise(name="Tip Toe", code="TT", instruction="Stand on your toes!",
-             reps=['5', '10', '15'],
-             assigned_key=("UP", KEYS["UP"])),
-    Exercise(name="Toe Crunches", code="TC", instruction="Crunch your toes like a fist!",
-             reps=['5', '10', '15'],
-             assigned_key=("LEFT", KEYS["LEFT"])),
+        Exercise(name="Raising on toes", code="TT", instruction="Stand on your toes!",
+                 reps=['5', '10', '15'],
+                 assigned_key=("UP", KEYS["UP"])),
+        Exercise(name="Toe Clenches", code="TC", instruction="Clench your toes like a fist!",
+                 reps=['5', '10', '15'],
+                 assigned_key=("LEFT", KEYS["LEFT"])),
+    # Exercise(name="Standing on toes", code="TC", instruction="Stand on your toes!",
+    #          reps=['5', '10', '15'],
+    #          assigned_key=("LEFT", KEYS["LEFT"])),
     Exercise(
         name="Rest",
         code="R",

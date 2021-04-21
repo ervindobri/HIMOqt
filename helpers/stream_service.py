@@ -1,7 +1,8 @@
 import time
+from collections import deque
 from multiprocessing import Lock
 import myo
-from constants import *
+from helpers.constants import *
 
 
 # To check if myo process is running
@@ -41,8 +42,31 @@ class MyoService:
         instructions = "MYO App started"
         return True
 
-
 class Listener(myo.DeviceListener):
+
+    def __init__(self, n):
+        self.n = n
+        self.lock = Lock()
+        self.emg_data_queue = deque(maxlen=n)
+
+    def on_connected(self, event):
+        print("Myo Connected")
+        event.device.stream_emg(True)
+
+    def get_emg_data(self):
+        with self.lock:
+            print("Locked")  # Ignore this
+
+    def on_emg(self, event):
+        with self.lock:
+            self.emg_data_queue.append(event.emg)
+
+            if len(list(self.emg_data_queue)) >= training_samples:
+                data.append(list(self.emg_data_queue))
+                self.emg_data_queue.clear()
+                return False
+
+class PrepareListener(myo.DeviceListener):
     def __init__(self, n):
         self.samples = n
         self._stop_requested = False
@@ -63,16 +87,19 @@ class Listener(myo.DeviceListener):
 class PredictListener(myo.DeviceListener):
     def __init__(self, n):
         self.samples = n
+        self.acceleration = None
         self.lock = Lock()
 
     def get_emg_data(self):
         return data
 
-    # myo.DeviceListener
 
     def on_connected(self, event):
         print("--- Streaming EMG ---")
         event.device.stream_emg(True)
+
+    def on_orientation(self, event):
+        self.acceleration = event.acceleration
 
     def on_emg(self, event):
         with self.lock:

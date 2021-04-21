@@ -1,11 +1,25 @@
 class QStyles:
+    recordStyle = """
+    QPushButton{
+                background-color: white;
+                color: #20c1dc;
+                border: 2px solid red;
+                border-radius: 7px;
+            }
+    """
+    borderedStyle = """ 
+            QWidget
+            { 
+                border: 1px solid #20c1dc;
+                border-radius: 7px;
+                background-color: #fefefe;
+            }"""
     comboStyle = """
         QComboBox
         {
             background-color: white;
             border: 1px solid #20c1dc;
             border-radius: 7px;
-            margin: 5px;
         }
     """
 

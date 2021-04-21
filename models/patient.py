@@ -3,9 +3,14 @@ class Patient:
                  id,
                  name: str = None,
                  age: int = None,
-                 parameters: dict = None
+                 parameters = None
                  ):
         self.id = id
         self.name = name
         self.age = age
         self.parameters = parameters
+
+    def __str__(self) -> str:
+        return "Name:" + self.name + ", Age:" + str(self.age) + ", Parameters:" + str(self.parameters)
+
+

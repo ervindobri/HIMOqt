@@ -3,10 +3,8 @@ import sys
 import time
 
 import myo
-from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QMainWindow, QStatusBar, QPushButton, QLabel, QWidget, QHBoxLayout, QStyle, QApplication
-import classification as clf
-from constants import PREDEFINED_EXERCISES
+from PyQt6.QtCore import QSize
+from PyQt6.QtWidgets import QMainWindow, QStatusBar, QPushButton, QLabel, QWidget, QHBoxLayout, QStyle, QApplication
 from ui.main_widget import MainWidget
 
 
@@ -38,4 +36,4 @@ if __name__ == '__main__':
     myo.init(sdk_path=os.getcwd())
     app = QApplication(sys.argv)
     ex = HIMOApp()
-    app.exec_()
+    app.exec()

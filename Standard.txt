@@ -1,0 +1,35 @@
+from->to
+
+client->module typeID:0 GetConnectionStatus (asks module for its state, if its ready to send data)
+module->client typeID:1 ConnectionStatus (tells client if it's ready to send state or not, the module sends this to client when it receives a GetConnectionStatus request)
+client->module typeID:2 StartListen(tells module to send data about foot state continuously)
+module->client typeID:3 FootState(tells the state of the foot, this is sent as manny times as possible from the module if the client called StartListen)
+client->module typeID:4 StopListen(tells module to stop sending foot state continuously)
+
+GetConnectionStatus //empty, used as a request
+{
+
+}
+
+ConnectionStatus
+{
+   byte Status;
+}
+
+StartListen//empty, used as a request
+{
+  
+}
+
+FootState
+{
+   byte State;
+}
+
+StopListen
+{
+   byte State;
+}
+
+When client/module sends data it sends typeID in binary(4 bytes) + json string(utf8), the receiving end will read the type id then read 
+the remaining packet bytes as a string, deserialize the string into a object and do what it needs with the object
