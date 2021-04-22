@@ -64,7 +64,6 @@ class MainWidget(QWidget):
         self.tabLayout.addTab(self.actionsTab, "Actions")
         self.tabLayout.addTab(self.statusTab, "Status")
         self.tabLayout.addTab(self.serverTab, "Server")
-        self.tabLayout.tabBar().setFixedWidth(250)
         # Status layout
 
         self.statusLayout.addWidget(self.statusLabel)

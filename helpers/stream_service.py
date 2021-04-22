@@ -104,3 +104,5 @@ class PredictListener(myo.DeviceListener):
     def on_emg(self, event):
         with self.lock:
             data.append(event.emg)
+            if len(data) >= self.samples:
+                return False

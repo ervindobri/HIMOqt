@@ -45,7 +45,7 @@ class ActionsTab(QWidget):
 
     def onSessionClicked(self):
         print("Session clicked")
-        dialog = SessionDialog(self)
+        dialog = SessionDialog(self.classification)
         dialog.exec()
 
     def onCalibrateClicked(self):

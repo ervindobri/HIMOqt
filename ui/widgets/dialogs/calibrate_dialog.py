@@ -131,8 +131,8 @@ class CalibrateDialog(QDialog):
         if all(x == True for x in self.recordReady) and not self.trained:
             # print("All true!")
             self.classification.save_data()
-            # self.trainThread.start()
-            # self.progress.setRange(0, 0)
+            self.trainThread.start()
+            self.progress.setRange(0, 0)
             # self.close()
         elif self.trained:
             self.close()

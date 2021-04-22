@@ -60,7 +60,7 @@ class Classification:
 
         self.input_data = None
         self.history = None
-
+        self.model = None
         self.hub = myo.Hub()
         self.firestore = FirestoreDatabase()
 
@@ -150,6 +150,34 @@ class Classification:
         conc_array = np.concatenate(self.all_averages, axis=0)
         return conc_array
 
+    def LoadModel(self):
+        self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+
+    def calculate_validated_data(self, current_data):
+        validation_averages = np.zeros((int(self.validation_averages), 8))
+        self.validation_set = np.array(current_data)
+        self.validation_set = np.absolute(self.validation_set)
+        # We add one because iterator below starts from 1
+        batches = int(samples / self.div) + 1  # 50/25 => 2+1 = 3
+        for i in range(1, batches):
+            validation_averages[i - 1, :] = np.mean(self.validation_set[(i - 1) * self.div:i * self.div, :],
+                                                    axis=0)
+
+        return validation_averages
+
+    def Predict(self):
+        listener = Stream.PredictListener(self.validation_samples)
+        self.hub.run(listener.on_event, 500)
+        while len(data) < samples:
+            pass
+
+        current_data = data[-samples:]  # get last nr_of_samples elements from list
+        validation_data = self.calculate_validated_data(current_data)
+        predictions = self.model.predict(validation_data, batch_size=self.batch_size)
+        predicted_value = np.argmax(predictions[0])
+        data.clear()
+        return self.exercises[predicted_value].name
+
     def TestLatency(self, reps):
         average = 0.0
         counter = 0
@@ -183,23 +211,12 @@ class Classification:
 
             end = time.time()
             data.clear()
-            if predicted_value == 0:
-                if listener.acceleration.y > -0.05:
-                    print("Standing on toes!")
-                else:
-                    print(
-                        "Predicted:", self.exercises[predicted_value].name
-                        , "Latency:", (end - start) * 1000, "ms",
-                        "Accelerometer:", listener.acceleration.y
+            print(
+                "Predicted:", self.exercises[predicted_value].name
+                , "Latency:", (end - start) * 1000, "ms",
+                "Accelerometer:", listener.acceleration.y
 
-                    )
-            else:
-                print(
-                    "Predicted:", self.exercises[predicted_value].name
-                    , "Latency:", (end - start) * 1000, "ms",
-                    "Accelerometer:", listener.acceleration.y
-
-                )
+            )
             average += (end - start) * 1000
             counter += 1
 

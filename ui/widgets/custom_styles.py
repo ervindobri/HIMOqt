@@ -15,7 +15,7 @@ class QStyles:
                 background-color: #fefefe;
             }"""
     comboStyle = """
-        QComboBox
+        QWidget
         {
             background-color: white;
             border: 1px solid #20c1dc;
@@ -61,17 +61,17 @@ class QStyles:
         {
             color: #454545;
             background-color: white;
-            text-decoration: underline;
-            text-decoration-color: #20c1dc;
-            font-size: 14px;
             font-weight: bold;    
-
+            
+            border-bottom: 4px solid #20c1dc;
         }
         QTabBar::tab
         {
             color: #bebebe;
             background-color: white;
-            font-size: 13px;    
+            font-size: 13px;
+            width: 80px;   
+            text-align: left; 
         }
     """
     backgroundGrey = """
