@@ -43,13 +43,26 @@ SUPPORTED_KEYS = {
 }
 PREDEFINED_PARAMETERS = ['5', '10', '15']
 
+
+SESSION_EXERCISES = [
+        Exercise(name="Raising on toes", code="TT", instruction="Stand on your toes!",
+                 reps=['5', '10', '15'],
+                 ),
+        Exercise(name="Toe Clenches", code="TC", instruction="Clench your toes like a fist!",
+                 reps=['5', '10', '15'],
+                 ),
+        # Exercise(name="Standing on toes", code="TS", instruction="Stand on your toes!",
+        #          reps=['5', '10', '15'],
+        #          ),
+]
+
 PREDEFINED_EXERCISES = [
         Exercise(name="Raising on toes", code="TT", instruction="Stand on your toes!",
                  reps=['5', '10', '15'],
-                 assigned_key=("UP", KEYS["UP"])),
+                 ),
         Exercise(name="Toe Clenches", code="TC", instruction="Clench your toes like a fist!",
                  reps=['5', '10', '15'],
-                 assigned_key=("LEFT", KEYS["LEFT"])),
+                 ),
     # Exercise(name="Standing on toes", code="TC", instruction="Stand on your toes!",
     #          reps=['5', '10', '15'],
     #          assigned_key=("LEFT", KEYS["LEFT"])),
@@ -58,7 +71,7 @@ PREDEFINED_EXERCISES = [
         code="R",
         instruction="Rest your feet...",
         reps=['0'],
-        assigned_key=("DOWN", KEYS["DOWN"])),
+    ),
     # Exercise(name="Toes UP", code="UP", instruction="Move your toes up!",
     #          assigned_key=("RIGHT", KEYS["RIGHT"])),
 ]

@@ -69,6 +69,13 @@ class Classification:
         self.subject_name = self.patient.name
         self.subject_age = self.patient.age
 
+    def model_exists(self):
+        try:
+            self.LoadModel()
+            return True
+        except FileNotFoundError:
+            return False
+
     def CalculateMeanData(self, streamed_data):
         training_set = np.absolute(streamed_data)
         current_average = np.zeros((int(self.training_averages), 8))
@@ -151,7 +158,10 @@ class Classification:
         return conc_array
 
     def LoadModel(self):
-        self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+        try:
+            self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+        except:
+            pass
 
     def calculate_validated_data(self, current_data):
         validation_averages = np.zeros((int(self.validation_averages), 8))
@@ -167,7 +177,9 @@ class Classification:
 
     def Predict(self):
         listener = Stream.PredictListener(self.validation_samples)
-        self.hub.run(listener.on_event, 500)
+        if self.hub.running:
+            self.hub.stop()
+        self.hub.run(listener.on_event, 1000)
         while len(data) < samples:
             pass
 
@@ -176,6 +188,7 @@ class Classification:
         predictions = self.model.predict(validation_data, batch_size=self.batch_size)
         predicted_value = np.argmax(predictions[0])
         data.clear()
+        self.hub.stop()
         return self.exercises[predicted_value].name
 
     def TestLatency(self, reps):

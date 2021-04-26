@@ -1,3 +1,4 @@
+import myo
 from PyQt6 import QtCore
 from PyQt6.QtCore import QThread
 
@@ -7,18 +8,12 @@ class SessionThread(QThread):
 
     def __init__(self, classification, parent=None):
         QThread.__init__(self, parent)
-        # self.queue = queue
-        # self.result_queue = result_queue
         self.classification = classification
+        self.classification.hub = myo.Hub()
 
     def run(self):
-        self.classification.LoadModel()
-        while True:
+        exists = self.classification.model_exists()
+        while exists:
             res = self.classification.Predict()
             self.exerciseResult.emit(res)
 
-
-def handle_results(result_queue):
-    while True:
-        result = result_queue.get()
-        print("Got result {}".format(result))

@@ -42,6 +42,7 @@ class MyoService:
         instructions = "MYO App started"
         return True
 
+
 class Listener(myo.DeviceListener):
 
     def __init__(self, n):
@@ -65,6 +66,7 @@ class Listener(myo.DeviceListener):
                 data.append(list(self.emg_data_queue))
                 self.emg_data_queue.clear()
                 return False
+
 
 class PrepareListener(myo.DeviceListener):
     def __init__(self, n):
@@ -92,7 +94,6 @@ class PredictListener(myo.DeviceListener):
 
     def get_emg_data(self):
         return data
-
 
     def on_connected(self, event):
         print("--- Streaming EMG ---")
