@@ -1,16 +1,16 @@
 import functools
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QMessageBox, QProgressBar
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QProgressBar
 from PyQt6.QtGui import QPixmap
 
 from helpers.classification import Classification
 from helpers.constants import RESOURCES_PATH
 from models.patient import Patient
-from ui.show_dialog import CustomDialog
+from ui.widgets.dialogs.show_dialog import CustomDialog
 from ui.threads.record_thread import RecordThread
 from ui.threads.train_thread import TrainThread
-from ui.widgets.custom_styles import QStyles
+from ui.widgets.custom.custom_styles import QStyles
 
 
 class CalibrateDialog(QDialog):

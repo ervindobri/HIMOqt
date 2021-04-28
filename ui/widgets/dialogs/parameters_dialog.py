@@ -1,12 +1,12 @@
 import functools
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton
 
 from helpers.classification import Classification
-from helpers.constants import PREDEFINED_EXERCISES, PREDEFINED_PARAMETERS
+from helpers.constants import PREDEFINED_PARAMETERS
 from models.patient import Patient
-from ui.widgets.custom_styles import QStyles
+from ui.widgets.custom.custom_styles import QStyles
 
 
 class ParametersDialog(QDialog):

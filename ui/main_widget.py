@@ -1,21 +1,15 @@
 import json
-import os
 from os import listdir
 from os.path import isfile, join
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QHBoxLayout, QPushButton, QListWidget, QTabWidget, \
-    QToolButton, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QListWidget, QTabWidget
 
 from helpers.classification import Classification
-from helpers.constants import PATIENTS_PATH, DATA_PATH
+from helpers.constants import PATIENTS_PATH
 from models.patient import Patient
-from ui.widgets.custom_button import ButtonLineEdit
-from ui.widgets.custom_styles import QStyles
+from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.add_patient_dialog import AddPatientDialog
-from ui.widgets.dialogs.parameters_dialog import ParametersDialog
-from ui.widgets.separators import QHSeparationLine
 from ui.widgets.tabs.actions_tab import ActionsTab
 from ui.widgets.tabs.server_tab import ServerTab
 from ui.widgets.tabs.status_tab import StatusTab

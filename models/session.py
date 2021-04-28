@@ -1,4 +1,4 @@
-from helpers.constants import PREDEFINED_EXERCISES, SESSION_EXERCISES
+from helpers.constants import PREDEFINED_EXERCISES, SESSION_EXERCISES, STANDING
 
 
 class Session:
@@ -39,34 +39,35 @@ class Session:
         return False
 
     def increment(self, exercise):
-        print(self.standing_on_toes_secs)
+        print(exercise)
         if not self.all_done():
             code = self.get_code(exercise)
             if exercise == self.current_exercise_name and not self.pause_active:
+
+                # If exercise is not completed, increment value in dict and 'correct'
                 if not self.is_completed(exercise):
                     self.counterMap[code] += 1
                     return True
                 else:
-                    self.pause_active = True
+                    # If its complete -> pause for 10..20..30 secs -> next exercise and INCREMENT
+                    self.counterMap[code] += 1
                     # set current and next
                     self.current_exercise_name = self.next_exercise_name
                     self.next_exercise_name = self.get_next(code)
-                    self.counterMap[code] += 1
+                    self.pause_active = True
                     return True
             return False
         else:
             if self.standing_on_toes_secs < self.standing_reps:
-                self.current_exercise_name = "Stand on your toes"
+                self.current_exercise_name = STANDING
             else:
                 self.session_finished = True
-            return True
+            return True if exercise == STANDING else False
 
     # Check if current exercise reps are equal to total reps
     def is_completed(self, exercise):
         code = self.get_code(exercise)
-        if self.counterMap[code] + 1 == int(self.reps):
-            return True
-        return False
+        return True if self.counterMap[code] == int(self.reps)-1 else False
 
     # Get the name of the next exercise
     def get_next(self, code):

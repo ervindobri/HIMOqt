@@ -56,6 +56,8 @@ SESSION_EXERCISES = [
         #          ),
 ]
 
+STANDING = "Standing on toes"
+
 PREDEFINED_EXERCISES = [
         Exercise(name="Raising on toes", code="TT", instruction="Stand on your toes!",
                  reps=['5', '10', '15'],

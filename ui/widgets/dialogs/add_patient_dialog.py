@@ -5,14 +5,12 @@ from os.path import isfile, join
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import QWidget, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox
 
-from helpers.classification import Classification
 from helpers.constants import PATIENTS_PATH, DATA_PATH, PREDEFINED_PARAMETERS
 from models.patient import Patient
-from ui.show_dialog import CustomDialog
-from ui.widgets.custom_styles import QStyles
-from ui.widgets.dialogs.parameters_dialog import ParametersDialog
+from ui.widgets.dialogs.show_dialog import CustomDialog
+from ui.widgets.custom.custom_styles import QStyles
 
 
 class AddPatientDialog(QDialog):

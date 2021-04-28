@@ -57,6 +57,7 @@ class Classification:
 
         self.training_set = np.zeros((8, self.training_averages))
         self.validation_set = np.zeros((8, self.validation_averages))
+        self.last_predictions = []
 
         self.input_data = None
         self.history = None
@@ -104,11 +105,11 @@ class Classification:
             self.all_averages[index] = result_array
             data.clear()
             result = 1
+            print(exercise.name, "data ready! Result:", result)
         except Exception as e:
             print(e)
             result = 0
 
-        print(exercise.name, "data ready! Result:", result)
         self.hub.stop()
         return result
 
@@ -189,7 +190,22 @@ class Classification:
         predicted_value = np.argmax(predictions[0])
         data.clear()
         self.hub.stop()
-        return self.exercises[predicted_value].name
+        self.last_predictions.append(int(predicted_value))
+        return self.CalculatePrediction(predicted_value)
+
+    # According to past results, choose correct exercise
+    def CalculatePrediction(self, value):
+        if self.exercises[value].name == "Raising on toes":
+            # check if last five elements in list were tip toes
+            if all(x == value for x in self.last_predictions[-3:]):
+                return STANDING
+            else:
+                return "Raising on toes"
+        else:
+            # If the previous exercise was this, make it rest for fluidity
+            if self.last_predictions[-2] == value:
+                return "Rest"
+            return self.exercises[value].name
 
     def TestLatency(self, reps):
         average = 0.0

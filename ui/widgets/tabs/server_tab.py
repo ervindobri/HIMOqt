@@ -5,8 +5,8 @@ from PyQt6.QtGui import QColor
 
 from helpers.communication import SocketCommunication
 from helpers.connection_state import ConnectionStatus
-from ui.widgets.custom_ellipse_painter import CustomEllipse
-from ui.widgets.custom_styles import QStyles
+from ui.widgets.custom.custom_ellipse_painter import CustomEllipse
+from ui.widgets.custom.custom_styles import QStyles
 
 RED = QColor(255, 0, 0)
 GREEN = QColor(0, 255, 50)

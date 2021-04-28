@@ -1,8 +1,8 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 
 from helpers.classification import Classification
-from ui.widgets.custom_styles import QStyles
+from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.calibrate_dialog import CalibrateDialog
 from ui.widgets.dialogs.session_dialog import SessionDialog
 
@@ -19,29 +19,46 @@ class ActionsTab(QWidget):
         self.patient = patient
         self.initUi()
 
+
     def initUi(self):
-        sessionButton = QPushButton("Session")
+        sessionButton = QPushButton("Standalone Session")
+        font = sessionButton.font()
+        font.setPointSize(15)
+
         sessionButton.setStyleSheet(QStyles.styledButtonStyle)
         sessionButton.clicked.connect(self.onSessionClicked)
-        sessionButton.setFixedSize(120, 30)
+        sessionButton.setFixedSize(200, 40)
+        sessionButton.setFont(font)
+
+        gameSessionButton = QPushButton("Game Session")
+        gameSessionButton.setStyleSheet(QStyles.styledButtonStyle)
+        gameSessionButton.clicked.connect(self.onGameSessionClicked)
+        gameSessionButton.setFixedSize(200, 40)
+        gameSessionButton.setFont(font)
 
         widget = QWidget()
         actionButtons = QVBoxLayout()
         widget.setLayout(actionButtons)
         calibrateButton = QPushButton("Calibrate")
-        calibrateButton.setStyleSheet(QStyles.styledButtonStyle)
+        calibrateButton.setStyleSheet(QStyles.outlineButtonStyle)
         calibrateButton.clicked.connect(self.onCalibrateClicked)
-        calibrateButton.setFixedSize(120, 30)
+        calibrateButton.setFixedSize(200, 40)
+        calibrateButton.setFont(font)
 
         label = QLabel("or")
         actionButtons.addWidget(sessionButton)
+        actionButtons.addWidget(gameSessionButton)
         actionButtons.addWidget(label)
         actionButtons.addWidget(calibrateButton)
         actionButtons.setAlignment(sessionButton, Qt.Alignment.AlignCenter)
+        actionButtons.setAlignment(gameSessionButton, Qt.Alignment.AlignCenter)
         actionButtons.setAlignment(label, Qt.Alignment.AlignCenter)
         actionButtons.setAlignment(calibrateButton, Qt.Alignment.AlignCenter)
-
         self.layout().addWidget(widget)
+
+    def onGameSessionClicked(self):
+        # TODO: when game is ready
+        pass
 
     def onSessionClicked(self):
         print("Session clicked")
