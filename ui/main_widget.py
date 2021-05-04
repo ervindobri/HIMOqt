@@ -31,7 +31,7 @@ class MainWidget(QWidget):
         self.tabLayout = QTabWidget()
         self.actionsTab = ActionsTab(classification=self.classification, patient=self.selectedPatient)
         self.statusTab = StatusTab()
-        self.serverTab = ServerTab()
+        self.serverTab = ServerTab(classification=self.classification)
 
         self.contentLayout = QVBoxLayout()
         self.listLayout = QListWidget()

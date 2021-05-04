@@ -64,6 +64,7 @@ class Classification:
         self.model = None
         self.hub = myo.Hub()
         self.firestore = FirestoreDatabase()
+        self.current_exercise = 0
 
     def set_patient(self, patient):
         self.patient = patient
@@ -196,15 +197,19 @@ class Classification:
     # According to past results, choose correct exercise
     def CalculatePrediction(self, value):
         if self.exercises[value].name == "Raising on toes":
-            # check if last five elements in list were tip toes
+            # check if last 3 elements in list were tip toes
             if all(x == value for x in self.last_predictions[-3:]):
+                self.current_exercise = 2
                 return STANDING
             else:
+                self.current_exercise = 0
                 return "Raising on toes"
         else:
             # If the previous exercise was this, make it rest for fluidity
-            if self.last_predictions[-2] == value:
+            if len(self.last_predictions) > 2 and self.last_predictions[-2] == value:
+                self.current_exercise = 3
                 return "Rest"
+            self.current_exercise = value
             return self.exercises[value].name
 
     def TestLatency(self, reps):

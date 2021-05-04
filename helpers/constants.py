@@ -41,7 +41,7 @@ SUPPORTED_KEYS = {
     "S": KeyCode.from_char('s'),
     "D": KeyCode.from_char('d'),
 }
-PREDEFINED_PARAMETERS = ['5', '10', '15']
+PREDEFINED_PARAMETERS = ['1', '5', '10', '15']
 
 
 SESSION_EXERCISES = [
