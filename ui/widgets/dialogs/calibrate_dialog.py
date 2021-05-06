@@ -121,7 +121,6 @@ class CalibrateDialog(QDialog):
         elif self.recordThread.result == 1:
             imagePath = "success.png"
             self.recordReady[index] = True
-            # TODO: save data to firebase
         else:
             print("None.")
         self.images[index].setPixmap(QPixmap(RESOURCES_PATH + imagePath))

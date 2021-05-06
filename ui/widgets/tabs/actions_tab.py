@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from helpers.classification import Classification
 from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.calibrate_dialog import CalibrateDialog
+from ui.widgets.dialogs.integrated_session_dialog import IntegratedSessionDialog
 from ui.widgets.dialogs.session_dialog import SessionDialog
 
 
@@ -57,13 +58,17 @@ class ActionsTab(QWidget):
         self.layout().addWidget(widget)
 
     def onGameSessionClicked(self):
-        # TODO: when game is ready
-        pass
+        print("Game session")
+
+        if self.patient is not None:
+            dialog = IntegratedSessionDialog(self.classification)
+            dialog.exec()
 
     def onSessionClicked(self):
         print("Session clicked")
-        dialog = SessionDialog(self.classification)
-        dialog.exec()
+        if self.patient is not None:
+            dialog = SessionDialog(self.classification)
+            dialog.exec()
 
     def onCalibrateClicked(self):
         print("Calibrating model")

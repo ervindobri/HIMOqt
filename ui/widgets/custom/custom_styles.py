@@ -1,4 +1,15 @@
+from PyQt6.QtWidgets import QLabel
+
+
 class QStyles:
+    # font = QLabel('').font()
+
+    # @staticmethod
+    # def get_font(size):
+    #     font = QLabel('').font()
+    #     font.setPointSize(size)
+    #     return font
+
     recordStyle = """
     QPushButton{
                 background-color: white;

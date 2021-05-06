@@ -87,6 +87,7 @@ class Classification:
         return current_average
 
     def RecordExercise(self, exercise_name):
+        data.clear()
         hub = myo.Hub()
         exercise = self.exercises[0]
         index = 0
@@ -100,7 +101,7 @@ class Classification:
         try:
             listener = Stream.Listener(training_samples)
             hub.run(listener.on_event, 3000)
-            current_training_set = np.array((data[0]))
+            current_training_set = np.array(data[0])
             self.all_raw.append(data[0])
             result_array = self.CalculateMeanData(current_training_set)
             self.all_averages[index] = result_array
@@ -111,7 +112,7 @@ class Classification:
             print(e)
             result = 0
 
-        self.hub.stop()
+        hub.stop()
         return result
 
     def PrepareTrainingData(self):
@@ -194,23 +195,36 @@ class Classification:
         self.last_predictions.append(int(predicted_value))
         return self.CalculatePrediction(predicted_value)
 
-    # According to past results, choose correct exercise
-    def CalculatePrediction(self, value):
-        if self.exercises[value].name == "Raising on toes":
-            # check if last 3 elements in list were tip toes
+    # Prevent holding if patient is holding an exercise, make it rest
+    def PreventHolding(self, value):
+        # If the previous exercise was this, make it rest for fluidity
+        if len(self.last_predictions) > 2 and self.last_predictions[-2] == value and self.last_predictions[-2] != 0:
+            self.current_exercise = 3
+            return "Rest"
+        self.current_exercise = value
+        return self.exercises[value].name
+
+    # Helper function if exercise is holding, classify it differently
+    def HoldingExercise(self, value):
+        # check if last 3 elements in list were exercise
+        if value == 0:
             if all(x == value for x in self.last_predictions[-3:]):
+                # Holding
                 self.current_exercise = 2
                 return STANDING
             else:
+                # Not Holding
                 self.current_exercise = 0
                 return "Raising on toes"
+
+    # According to past results, choose correct exercise
+    def CalculatePrediction(self, value):
+        print(value)
+        if value == 0:
+            # print("tiptoe")
+            return self.HoldingExercise(value)
         else:
-            # If the previous exercise was this, make it rest for fluidity
-            if len(self.last_predictions) > 2 and self.last_predictions[-2] == value:
-                self.current_exercise = 3
-                return "Rest"
-            self.current_exercise = value
-            return self.exercises[value].name
+            return self.PreventHolding(value)
 
     def TestLatency(self, reps):
         average = 0.0
@@ -288,7 +302,6 @@ class Classification:
                 'emg': self.all_raw
             }
             uploader.upload(str(self.patient.id) + '.json', json.dumps(content))
-            # TODO: save raw data to google drive
         except Exception as e:
             print(e)
 

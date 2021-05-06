@@ -25,43 +25,49 @@ class ServerTab(QWidget):
 
         statusLayoutContainer = QWidget()
         statusLayout = QHBoxLayout()
-
+        self.replyContainer = QLabel('last reply')
         label = QLabel("Connection status")
-        label.setStyleSheet("font-weight: bold;")
         statusImage = CustomEllipse(10, RED)
+        actionsLayout = QHBoxLayout()
+        self.pipeNameEdit = QLineEdit()
 
+        label.setStyleSheet("font-weight: bold;")
+        statusImage.setFixedSize(30, 15)
         statusLayout.addWidget(label)
         statusLayout.addWidget(statusImage)
-        statusLayout.setAlignment(label, Qt.Alignment.AlignCenter)
-        statusLayout.setAlignment(statusImage, Qt.Alignment.AlignCenter)
-        statusLayoutContainer.setFixedSize(200, 50)
+        statusLayout.setAlignment(statusImage, Qt.Alignment.AlignRight)
+        # statusLayoutContainer.setFixedSize(200, 50)
+        statusLayoutContainer.setStyleSheet("background-color: #f0f0f0;")
         statusLayoutContainer.setLayout(statusLayout)
-        # statusLayoutContainer.setStyleSheet()
 
-        actionsLayout = QHBoxLayout()
         self.connectButton = QPushButton('Connect')
-        listenButton = QPushButton('Listen')
+        stopButton = QPushButton('Disconnect')
 
-        self.connectButton.setFixedSize(100, 50)
-        self.connectButton.setStyleSheet(QStyles.outlineButtonStyle)
+        self.connectButton.setFixedHeight(50)
+        self.connectButton.setStyleSheet(QStyles.styledButtonStyle)
         self.connectButton.clicked.connect(functools.partial(self.setConnection, statusImage))
-        listenButton.setFixedSize(100, 50)
-        listenButton.setStyleSheet(QStyles.styledButtonStyle)
-        listenButton.clicked.connect(self.startListen)
+        stopButton.setFixedHeight(50)
+        stopButton.setStyleSheet(QStyles.outlineButtonStyle)
+        stopButton.clicked.connect(functools.partial(self.stopListen, statusImage))
 
         actionsLayout.addWidget(self.connectButton)
-        actionsLayout.addWidget(listenButton)
+        actionsLayout.addWidget(stopButton)
 
-        self.pipeNameEdit = QLineEdit()
         self.pipeNameEdit.setStyleSheet(QStyles.lineEditStyle)
         self.pipeNameEdit.setPlaceholderText('pipe name...')
+        self.pipeNameEdit.setText('himo')
+
         layout.addWidget(self.pipeNameEdit)
         layout.addLayout(actionsLayout)
         layout.addWidget(statusLayoutContainer)
-        self.replyContainer = QLabel('last reply')
-        layout.addWidget(self.replyContainer)
-        layout.setAlignment(statusLayoutContainer, Qt.Alignment.AlignCenter)
-        # layout.setAlignment(Qt.AlignTop)
+        # statusLayout.addWidget(self.replyContainer)
+        font = self.replyContainer.font()
+        font.setPointSize(15)
+        self.replyContainer.setFont(font)
+        # layout.addWidget(self.replyContainer)
+        layout.setAlignment(self.pipeNameEdit, Qt.Alignment.AlignVCenter)
+        layout.setAlignment(actionsLayout, Qt.Alignment.AlignVCenter)
+        layout.setAlignment(statusLayoutContainer, Qt.Alignment.AlignBottom)
 
         self.socketCommunication = SocketCommunication()
         self.classification = classification
@@ -78,14 +84,16 @@ class ServerTab(QWidget):
         self.replyContainer.setText(value)
 
     def setConnection(self, image):
-        self.socketCommunication.initialize(self.pipeNameEdit.text())
-        image.color = GREEN
-        # self.connectButton.setDisabled(True)
+        ret = self.socketCommunication.initialize(self.pipeNameEdit.text())
+        if ret:
+            self.startListen()
+            image.setColor(GREEN)
+            image.setFixedSize(40, 15)
 
-    def stopListen(self):
-        print("Quitting comm. thread")
-        self.communicationThread.quit()
+    def stopListen(self, image):
+        self.communicationThread.terminate()
+        image.setColor(RED)
+        image.setFixedSize(30, 15)
 
     def startListen(self):
-        print("Quitting comm. thread")
         self.communicationThread.start()

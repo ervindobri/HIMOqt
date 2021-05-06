@@ -13,7 +13,7 @@ def pipe_server(name):
     pipe = win32pipe.CreateNamedPipe(
         r'\\.\pipe\{}'.format(name),
         win32pipe.PIPE_ACCESS_DUPLEX,
-        win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_WAIT,
+        win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_NOWAIT,
         1,
         65536,
         65536,

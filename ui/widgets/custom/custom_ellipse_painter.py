@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QWidget, QApplication
 from PyQt6.QtGui import QPainter, QColor, QFont, QPixmap
-from PyQt6.QtCore import Qt, QRect
+from PyQt6.QtCore import Qt, QRect, pyqtSignal, pyqtSlot
 
 
 class CustomEllipse(QWidget):
@@ -10,11 +10,10 @@ class CustomEllipse(QWidget):
         super().__init__()
         self.size = size
         self.color = color
-        # self.initUI()
 
-    # def initUI(self):
-
-    # TODO repaint green
+    # @pyqtSlot
+    def setColor(self, color):
+        self.color = color
 
     def paintEvent(self, event):
         px = QPixmap(self.size, self.size)
