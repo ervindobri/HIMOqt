@@ -1,50 +1,14 @@
-import socket
-import sys
 import json
-
-# PROTOCOL
-
-# client->module typeID:0 GetConnectionStatus (asks module for its state, if its ready to send data)
-#
-
-# module->client typeID:1 ConnectionStatus (tells client if it's ready to send state or not, the module sends this to
-# client when it receives a GetConnectionStatus request)
-
-# client->module typeID:2 StartListen(tells module to send
-# data about foot state continuously)
-
-# module->client typeID:3 FootState(tells the state of the foot, this is sent as
-# manny times as possible from the module if the client called StartListen)
-
-# client->module typeID:4 StopListen(tells
-# module to stop sending foot state continuously)
-from queue import Queue
-from threading import Thread
-
-import pywintypes
 import win32file
 import win32pipe
-from winsys import constants, core, exc, utils
-
-from helpers.connection_state import ConnectionStatus
 
 
-class x_handles(exc.x_winsys):
-    pass
-
-
-WINERROR_MAP = {
-}
-wrapped = exc.wrapper(WINERROR_MAP, x_handles)
-
-
-class SocketCommunication:
+class LocalCommunication:
     def __init__(self,
                  host: str = "localhost",
                  port: str = 9999
                  ):
         self.pipe = None
-        self.handle = None
 
         self.connection_status = 0
         self.start_foot = False
@@ -62,28 +26,24 @@ class SocketCommunication:
         # self.Listen()
 
     def close(self):
-        if self.handle is not None:
-            self.handle.close()
+        if self.pipe is not None:
             self.pipe.close()
             print("Pipe closed!")
 
     def initialize(self, name):
         try:
-            if self.handle is None:
-                self.handle = win32file.CreateFile(
-                    r"\\.\pipe\{}".format(name),
-                    win32file.FD_READ | win32file.GENERIC_WRITE | win32pipe.PIPE_WAIT,
-                    0,
-                    None,
-                    win32file.OPEN_EXISTING,
+            if self.pipe is None:
+                self.pipe = win32pipe.CreateNamedPipe(
+                    r'\\.\pipe\{}'.format(name),
+                    win32pipe.PIPE_ACCESS_DUPLEX,
+                    win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_WAIT,
+                    1,
+                    65536,
+                    65536,
                     0,
                     None
                 )
-                self.pipe = win32pipe.SetNamedPipeHandleState(self.handle,
-                                                              win32pipe.PIPE_READMODE_BYTE,
-                                                              None,
-                                                              None)
-
+                win32pipe.ConnectNamedPipe(self.pipe, None)
             print("Initializing named pipe communication on pipe: ", name)
             return True
         except Exception as e:
@@ -91,8 +51,8 @@ class SocketCommunication:
             return False
 
     def read(self):
-        res, resp1 = win32file.ReadFile(self.handle, 4)  # length?
-        res, resp2 = win32file.ReadFile(self.handle, 1024)  # data
+        res, resp1 = win32file.ReadFile(self.pipe, 4)  # length?
+        res, resp2 = win32file.ReadFile(self.pipe, 1024)  # data
         # print(f"Read: {resp2}")
         message_list = list(resp2)  # taking the bytes as int list
         decoded = str(message_list[0]) + "".join(chr(x) for x in message_list[4:])  # taking
@@ -106,16 +66,16 @@ class SocketCommunication:
 
             # Stream foot data continuously
             if self.start_foot:
-                self.SendMessage('2', int(exercise))
+                self.send_message('2', int(exercise))
                 return True, 'foot'
             else:
-                self.SendMessage(message_type, int(exercise))
+                self.send_message(message_type, int(exercise))
                 return True, message_type
         except Exception as e:
             print(e)
             return False, -1
 
-    def SendMessage(self, message_type, exercise):
+    def send_message(self, message_type, exercise=None):
         code, val = self.responses[message_type]
         message = chr(int(code)) + "\x00\x00\x00"
         if val is not None:
@@ -125,25 +85,33 @@ class SocketCommunication:
                     "Status": val
                 })
             elif message_type == '2':
-                self.start_foot = True
                 message += json.dumps({
                     "State": exercise
                 })
-            # print("Write: ", list(bytes(message.replace(" ", ""),
-            #                             encoding="raw_unicode_escape")))
-            print(message)
-            win32file.WriteFile(self.handle, bytes([len(message.replace(" ", "")), 0, 0, 0]))
-            win32file.WriteFile(self.handle, bytes(message.replace(" ", ""),
-                                                   encoding="raw_unicode_escape"))
+            win32file.WriteFile(self.pipe, bytes([len(message.replace(" ", "")), 0, 0, 0]))
+            win32file.WriteFile(self.pipe, bytes(message.replace(" ", ""),
+                                                 encoding="raw_unicode_escape"))
 
-    def set_foot(self, state):
-        self.responses["2"] = ("3", state)
+    def start_listen(self):
+        try:
+            print("Starting comm thread!")
+            self.connection_status = 2
+            self.responses['0'] = ('1', self.connection_status)
+            self.send_message('0')
+        except:
+            pass
 
-    def stop_message_send(self):
-        print("Stopped sending!")
+    def stop_listen(self):
+        try:
+            print("stopping listening")
+            self.connection_status = 1
+            self.responses['0'] = ('1', self.connection_status)
+            self.send_message('0')
+        except:
+            pass
 
 
 if __name__ == '__main__':
-    comm = SocketCommunication()
+    comm = LocalCommunication()
     comm.initialize("x")  # init -> set pipe name
     comm.listen(0)  # connect on gui

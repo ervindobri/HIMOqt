@@ -1,10 +1,7 @@
 import os
 import sys
-import time
-
 import myo
-from PyQt6.QtCore import QSize
-from PyQt6.QtWidgets import QMainWindow, QStatusBar, QPushButton, QLabel, QWidget, QHBoxLayout, QStyle, QApplication
+from PyQt6.QtWidgets import QMainWindow, QApplication
 from ui.main_widget import MainWidget
 
 
@@ -32,7 +29,7 @@ class HIMOApp(QMainWindow):
         self.show()
 
 
-if __name__ == '__main__':
+def main():
     myo.init(sdk_path=os.getcwd())
     app = QApplication(sys.argv)
     ex = HIMOApp()

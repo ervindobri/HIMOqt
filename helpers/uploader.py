@@ -1,8 +1,5 @@
-import os
-
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-
 from helpers.constants import RESOURCES_PATH
 
 

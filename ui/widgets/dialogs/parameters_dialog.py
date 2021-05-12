@@ -1,8 +1,6 @@
 import functools
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton
-
 from helpers.classification import Classification
 from helpers.constants import PREDEFINED_PARAMETERS
 from models.patient import Patient
@@ -37,7 +35,7 @@ class ParametersDialog(QDialog):
         self.acceptButton.setStyleSheet(QStyles.styledButtonStyle)
         self.acceptButton.setFixedSize(100, 35)
         layout.addWidget(self.acceptButton)
-        layout.setAlignment(self.acceptButton, Qt.Alignment.AlignCenter)
+        layout.setAlignment(self.acceptButton, Qt.AlignmentFlag.AlignCenter)
         self.parameters = {}
 
     def repsSelected(self):

@@ -10,5 +10,5 @@ class CustomDialog:
         msg.setText(text)
         msg.setInformativeText(info)
         msg.setIcon(QMessageBox.Icon.Information)
-        msg.setStandardButtons(QMessageBox.StandardButtons.Ok)
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg.exec()

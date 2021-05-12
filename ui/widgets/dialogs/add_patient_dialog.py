@@ -23,7 +23,6 @@ class AddPatientDialog(QDialog):
         self.inputLayout = QVBoxLayout()
         self.setLayout(self.inputLayout)
 
-
         self.nameInputLayout = QHBoxLayout()
         self.ageInputLayout = QHBoxLayout()
         self.paramLayout = QHBoxLayout()
@@ -37,7 +36,6 @@ class AddPatientDialog(QDialog):
         self.paraCombo = QComboBox()
 
         self.saveButton = QPushButton("Save")
-        self.loadButton = QPushButton("Load")
 
         self.patient = patient
         if patient is None:
@@ -52,8 +50,7 @@ class AddPatientDialog(QDialog):
         self.nameInput.setStyleSheet(QStyles.lineEditStyle)
         self.ageInput.setStyleSheet(QStyles.lineEditStyle)
         self.saveButton.setStyleSheet(QStyles.styledButtonStyle)
-        self.loadButton.setStyleSheet(QStyles.outlineButtonStyle)
-
+        self.paraLabel.setStyleSheet(QStyles.labelStyle)
 
     def getPatientInfo(self):
         file = [f for f in listdir(PATIENTS_PATH) if isfile(join(PATIENTS_PATH, f))]
@@ -70,20 +67,19 @@ class AddPatientDialog(QDialog):
         self.nameLabel.setFixedSize(100, 30)
         self.ageLabel.setFixedSize(100, 30)
         font = self.nameInput.font()
-        font.setPointSize(12)  # change it's size
+        font.setPointSize(13)  # change it's size
         self.nameInput.setFont(font)
         self.nameInput.setPlaceholderText('Ervin')
         self.nameInput.setText('Ervin')
         self.nameInput.setFixedWidth(200)
         # self.saveButton.setFixedSize(100, 30)
+        self.saveButton.setFont(font)
         self.saveButton.setFixedHeight(30)
-        self.loadButton.setFixedHeight(30)
-
 
         self.nameInputLayout.addWidget(self.nameLabel)
         self.nameInputLayout.addWidget(self.nameInput)
-        self.nameInputLayout.setAlignment(self.nameLabel, Qt.Alignment.AlignLeft)
-        self.nameInputLayout.setAlignment(self.nameInput, Qt.Alignment.AlignLeft)
+        self.nameInputLayout.setAlignment(self.nameLabel, Qt.AlignmentFlag.AlignLeft)
+        self.nameInputLayout.setAlignment(self.nameInput, Qt.AlignmentFlag.AlignRight)
 
         # To allow only int
         onlyInt = QIntValidator()
@@ -95,8 +91,8 @@ class AddPatientDialog(QDialog):
 
         self.ageInputLayout.addWidget(self.ageLabel)
         self.ageInputLayout.addWidget(self.ageInput)
-        self.ageInputLayout.setAlignment(self.ageLabel, Qt.Alignment.AlignLeft)
-        self.ageInputLayout.setAlignment(self.ageInput, Qt.Alignment.AlignLeft)
+        self.ageInputLayout.setAlignment(self.ageLabel, Qt.AlignmentFlag.AlignLeft)
+        self.ageInputLayout.setAlignment(self.ageInput, Qt.AlignmentFlag.AlignRight)
 
         self.paraCombo.setFixedSize(200, 30)
         self.paraCombo.setFont(font)
@@ -106,7 +102,6 @@ class AddPatientDialog(QDialog):
 
         self.paraCombo.currentTextChanged.connect(self.repsSelected)
         self.saveButton.clicked.connect(self.onSaveButtonClicked)
-        # self.loadButton.clicked.connect(self.onLoadButtonClicked)
         self.paramLayout.addWidget(self.paraLabel)
         self.paramLayout.addWidget(self.paraCombo)
 
@@ -114,8 +109,7 @@ class AddPatientDialog(QDialog):
         self.inputLayout.addLayout(self.ageInputLayout)
         self.inputLayout.addLayout(self.paramLayout)
         self.inputLayout.addWidget(self.saveButton)
-        self.inputLayout.addWidget(self.loadButton)
-        self.inputLayout.setContentsMargins(3, 3, 3, 10)
+        self.inputLayout.setContentsMargins(15, 15, 15, 10)
 
     def repsSelected(self):
         print(self.paraCombo.currentText())

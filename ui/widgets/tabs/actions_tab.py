@@ -11,12 +11,14 @@ from ui.widgets.dialogs.session_dialog import SessionDialog
 class ActionsTab(QWidget):
     def __init__(self, parent=None,
                  classification: Classification = None,
+                 communication=None,
                  patient=None):
         super(ActionsTab, self).__init__(parent)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.classification = classification
+        self.communication = communication
         self.patient = patient
         self.initUi()
 
@@ -51,17 +53,20 @@ class ActionsTab(QWidget):
         actionButtons.addWidget(gameSessionButton)
         actionButtons.addWidget(label)
         actionButtons.addWidget(calibrateButton)
-        actionButtons.setAlignment(sessionButton, Qt.Alignment.AlignCenter)
-        actionButtons.setAlignment(gameSessionButton, Qt.Alignment.AlignCenter)
-        actionButtons.setAlignment(label, Qt.Alignment.AlignCenter)
-        actionButtons.setAlignment(calibrateButton, Qt.Alignment.AlignCenter)
+        actionButtons.setAlignment(sessionButton, Qt.AlignmentFlag.AlignCenter)
+        actionButtons.setAlignment(gameSessionButton, Qt.AlignmentFlag.AlignCenter)
+        actionButtons.setAlignment(label, Qt.AlignmentFlag.AlignCenter)
+        actionButtons.setAlignment(calibrateButton, Qt.AlignmentFlag.AlignCenter)
         self.layout().addWidget(widget)
 
     def onGameSessionClicked(self):
         print("Game session")
 
         if self.patient is not None:
-            dialog = IntegratedSessionDialog(self.classification)
+            dialog = IntegratedSessionDialog(
+                classification=self.classification,
+                communication=self.communication
+            )
             dialog.exec()
 
     def onSessionClicked(self):

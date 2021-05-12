@@ -1,11 +1,11 @@
 import json
 from os import listdir
 from os.path import isfile, join
-
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QListWidget, QTabWidget
-
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout,\
+    QPushButton, QListWidget, QTabWidget
 from helpers.classification import Classification
+from helpers.communication import LocalCommunication
 from helpers.constants import PATIENTS_PATH
 from models.patient import Patient
 from ui.widgets.custom.custom_styles import QStyles
@@ -18,20 +18,24 @@ from ui.widgets.tabs.status_tab import StatusTab
 class MainWidget(QWidget):
     def __init__(self, parent):
         super().__init__()
-        self.addPatientButton = QPushButton('Add patient')
         self.classification = Classification(
             batch_size=25,
         )
+        self.communication = LocalCommunication()
+
         self.patient = None
-
-        # self.patient = self.getPatientInfo()
-        # self.classification.set_patient(self.patient)
         self.selectedPatient = None
-
+        self.addPatientButton = QPushButton('Add patient')
         self.tabLayout = QTabWidget()
-        self.actionsTab = ActionsTab(classification=self.classification, patient=self.selectedPatient)
+        self.actionsTab = ActionsTab(
+            classification=self.classification,
+            communication=self.communication,
+        patient=self.selectedPatient)
         self.statusTab = StatusTab()
-        self.serverTab = ServerTab(classification=self.classification)
+        self.serverTab = ServerTab(
+            classification=self.classification,
+            communication=self.communication
+        )
 
         self.contentLayout = QVBoxLayout()
         self.listLayout = QListWidget()

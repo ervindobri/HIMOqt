@@ -3,7 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 from helpers.constants import RESOURCES_PATH
-from google.cloud.firestore_v1 import ArrayUnion
+
 
 class FirestoreDatabase:
     def __init__(self):

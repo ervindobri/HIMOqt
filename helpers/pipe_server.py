@@ -1,10 +1,6 @@
-import os, time, sys
-
-import pywintypes
+import time
 import win32file
 import win32pipe
-
-import wpipe
 
 
 def pipe_server(name):

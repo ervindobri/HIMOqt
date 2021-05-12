@@ -4,17 +4,16 @@ import threading
 import time
 from functools import reduce
 
-from keras.activations import relu
-from keras.models import load_model
-from myo._ffi import libmyo
+from tensorflow.keras.activations import relu
 from tensorflow import keras
-from keras import regularizers
+from tensorflow.keras import regularizers
 import myo
 import numpy as np
 from tensorflow.python.keras.activations import softmax
-from tensorflow_addons.callbacks import TQDMProgressBar
+from tensorflow.keras.models import load_model
+# from tensorflow_addons.callbacks import TQDMProgressBar
 
-import helpers.stream_service as Stream
+import helpers.stream_service as stream
 from helpers.constants import *
 import matplotlib.pyplot as plt
 import datetime as dt
@@ -73,7 +72,8 @@ class Classification:
 
     def model_exists(self):
         try:
-            self.LoadModel()
+            self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+            print("Model loaded successfully: ", self.model)
             return True
         except FileNotFoundError:
             return False
@@ -99,7 +99,7 @@ class Classification:
 
         print("Exercise name:", exercise.name, ", index: ", index)
         try:
-            listener = Stream.Listener(training_samples)
+            listener = stream.Listener(training_samples)
             hub.run(listener.on_event, 3000)
             current_training_set = np.array(data[0])
             self.all_raw.append(data[0])
@@ -126,7 +126,7 @@ class Classification:
             while True:
                 try:
                     hub = myo.Hub()
-                    listener = Stream.PrepareListener(self.training_samples)
+                    listener = stream.PrepareListener(self.training_samples)
                     hub.run(listener.on_event, 3000)
                     self.all_training_set[x] = np.array(data)
                     print(self.all_training_set[x].shape)
@@ -134,7 +134,7 @@ class Classification:
                     break
                 except Exception as e:
                     print(e)
-                    while not Stream.MyoService.restart_process():
+                    while not stream.MyoService.restart_process():
                         pass
                     # Wait for 3 seconds until Myo Connect.exe starts
                     time.sleep(3)
@@ -179,7 +179,7 @@ class Classification:
         return validation_averages
 
     def Predict(self):
-        listener = Stream.PredictListener(self.validation_samples)
+        listener = stream.PredictListener(self.validation_samples)
         if self.hub.running:
             self.hub.stop()
         self.hub.run(listener.on_event, 1000)
@@ -199,9 +199,9 @@ class Classification:
     def PreventHolding(self, value):
         # If the previous exercise was this, make it rest for fluidity
         if len(self.last_predictions) > 2 and self.last_predictions[-2] == value and self.last_predictions[-2] != 0:
-            self.current_exercise = 3
+            self.current_exercise = 1
             return "Rest"
-        self.current_exercise = value
+        self.current_exercise = value+1
         return self.exercises[value].name
 
     # Helper function if exercise is holding, classify it differently
@@ -210,28 +210,34 @@ class Classification:
         if value == 0:
             if all(x == value for x in self.last_predictions[-3:]):
                 # Holding
-                self.current_exercise = 2
+                self.current_exercise = 4
                 return STANDING
             else:
                 # Not Holding
-                self.current_exercise = 0
+                self.current_exercise = 2
                 return "Raising on toes"
+        elif value == 1:
+            self.current_exercise = 3
+            return "Toe Clenches"
+        elif value == 2:
+            self.current_exercise = 1
+            return "Rest"
 
     # According to past results, choose correct exercise
     def CalculatePrediction(self, value):
-        print(value)
-        if value == 0:
+        # if value == 0:
             # print("tiptoe")
-            return self.HoldingExercise(value)
-        else:
-            return self.PreventHolding(value)
+        return self.HoldingExercise(value)
+        # else:
+        #     toe clenches
+        #     return self.PreventHolding(value)
 
     def TestLatency(self, reps):
         average = 0.0
         counter = 0
         model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
         validation_averages = np.zeros((int(self.validation_averages), 8))
-        listener = Stream.PredictListener(self.validation_samples)
+        listener = stream.PredictListener(self.validation_samples)
 
         thread = threading.Thread(target=lambda: self.hub.run_forever(listener.on_event, 100))
         thread.start()
@@ -358,18 +364,20 @@ class Classification:
 
         print(model.summary())
         print("Fitting training data to the model...")
-        tqdm_callback = TQDMProgressBar(
-            show_epoch_progress=False,
-            leave_overall_progress=False,
-            leave_epoch_progress=False
-        )
+        # tqdm_callback = TQDMProgressBar(
+        #     show_epoch_progress=False,
+        #     leave_overall_progress=False,
+        #     leave_epoch_progress=False
+        # )
         history = model.fit(train_data, train_labels, epochs=self.epochs,
                             validation_data=(validation_data, validation_labels),
                             batch_size=self.batch_size, verbose=0,
-                            callbacks=[tqdm_callback],
+                            callbacks=[
+                                # tqdm_callback
+                            ],
                             )
         print("Training model successful!")
-        print("Max accuracy:", history.history['val_accuracy'][-1])
+        print("Max accuracy:", history.history['val_acc'][-1], ", loss:", history.history['val_loss'][-1])
         print("Saving model for later...")
         save_path = TRAINING_MODEL_PATH + self.subject_name + '.h5'
         model.save(save_path)
@@ -381,7 +389,7 @@ class Classification:
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
         # Here we display the training and test loss for model
         ax1.plot(history['accuracy'])
-        ax1.plot(history['val_accuracy'])
+        ax1.plot(history['val_acc'])
         ax1.set_title('model accuracy')
         ax1.set_ylim((0, 1.05))
         # ax1.c('accuracy')

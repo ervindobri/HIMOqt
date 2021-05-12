@@ -39,7 +39,7 @@ class CalibrateDialog(QDialog):
         exerciseContainer.setContentsMargins(10, 10, 10, 10)
         label = QLabel('Calibrating ' + self.patient.name)
         label.setStyleSheet(QStyles.labelStyle)
-        label.setAlignment(Qt.Alignment.AlignCenter)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setFixedHeight(30)
         font = label.font()
         font.setPointSize(15)
@@ -55,7 +55,7 @@ class CalibrateDialog(QDialog):
         bottomContainer = QHBoxLayout()
         bottomContainer.addWidget(self.progress)
         bottomContainer.addWidget(readyButton)
-        bottomContainer.setAlignment(readyButton, Qt.Alignment.AlignRight)
+        bottomContainer.setAlignment(readyButton, Qt.AlignmentFlag.AlignRight)
 
         layout.addWidget(exerciseContainer)
         layout.addLayout(bottomContainer)
@@ -96,9 +96,9 @@ class CalibrateDialog(QDialog):
             self.exerciseLayouts[i].addWidget(self.labels[i])
             self.exerciseLayouts[i].addWidget(self.images[i])
             self.exerciseLayouts[i].addWidget(self.buttons[i])
-            self.exerciseLayouts[i].setAlignment(self.labels[i], Qt.Alignment.AlignCenter)
-            self.exerciseLayouts[i].setAlignment(self.images[i], Qt.Alignment.AlignCenter)
-            self.exerciseLayouts[i].setAlignment(self.buttons[i], Qt.Alignment.AlignCenter)
+            self.exerciseLayouts[i].setAlignment(self.labels[i], Qt.AlignmentFlag.AlignCenter)
+            self.exerciseLayouts[i].setAlignment(self.images[i], Qt.AlignmentFlag.AlignCenter)
+            self.exerciseLayouts[i].setAlignment(self.buttons[i], Qt.AlignmentFlag.AlignCenter)
             self.hLayout.addLayout(self.exerciseLayouts[i])
 
     def onRecordExerciseButtonClicked(self, name, index):

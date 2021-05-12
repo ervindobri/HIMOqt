@@ -12,6 +12,7 @@ from ui.widgets.custom.custom_styles import QStyles
 class SessionDialog(QDialog):
     def __init__(self, classification, parent=None):
         super().__init__(parent)
+        self.image = QLabel()
         self.freestyleTimer = QTimer()
         self.freestyleTime = QTime(0, 5, 0)
         self.freestyleTimeEdit = QTimeEdit(self.freestyleTime)
@@ -60,7 +61,7 @@ class SessionDialog(QDialog):
         layout.addWidget(container)
         containerLayout = QVBoxLayout()
         container.setLayout(containerLayout)
-        layout.setAlignment(container, Qt.Alignment.AlignCenter)
+        layout.setAlignment(container, Qt.AlignmentFlag.AlignCenter)
 
         startButton = QPushButton('Start')
         font = startButton.font()
@@ -96,11 +97,11 @@ class SessionDialog(QDialog):
         containerLayout.addWidget(label2)
         containerLayout.addWidget(self.pause)
         containerLayout.addWidget(startButton)
-        containerLayout.setAlignment(self.repsInput, Qt.Alignment.AlignCenter)
+        containerLayout.setAlignment(self.repsInput, Qt.AlignmentFlag.AlignCenter)
         containerLayout.setStretch(0, 1)
         containerLayout.setStretch(1, 2)
-        containerLayout.setAlignment(self.pause, Qt.Alignment.AlignCenter)
-        containerLayout.setAlignment(startButton, Qt.Alignment.AlignCenter)
+        containerLayout.setAlignment(self.pause, Qt.AlignmentFlag.AlignCenter)
+        containerLayout.setAlignment(startButton, Qt.AlignmentFlag.AlignCenter)
 
     def onRepsChanged(self, text):
         self.reps = text
@@ -129,7 +130,6 @@ class SessionDialog(QDialog):
     def setExercisesTab(self):
         layout = QVBoxLayout()
         self.exercisesTab.setLayout(layout)
-        self.image = QLabel()
         font = self.image.font()
         font.setPointSize(13)
         bigFont = font
@@ -153,19 +153,19 @@ class SessionDialog(QDialog):
         nextContainer = QVBoxLayout()
         nextContainer.addWidget(nlabel)
         nextContainer.addWidget(self.nextExerciseName)
-        nextContainer.setAlignment(nlabel, Qt.Alignment.AlignTop)
-        nextContainer.setAlignment(self.nextExerciseName, Qt.Alignment.AlignTop)
+        nextContainer.setAlignment(nlabel, Qt.AlignmentFlag.AlignTop)
+        nextContainer.setAlignment(self.nextExerciseName, Qt.AlignmentFlag.AlignTop)
 
         container.addWidget(clabel)
         container.addWidget(self.currentExerciseCount)
         container.addWidget(self.image)
         container.addWidget(self.currentExerciseLabel)
         container.addWidget(self.nextExerciseName)
-        container.setAlignment(clabel, Qt.Alignment.AlignCenter)
-        container.setAlignment(self.currentExerciseCount, Qt.Alignment.AlignCenter)
-        container.setAlignment(self.image, Qt.Alignment.AlignCenter)
-        container.setAlignment(self.currentExerciseLabel, Qt.Alignment.AlignCenter)
-        container.setAlignment(self.nextExerciseName, Qt.Alignment.AlignCenter)
+        container.setAlignment(clabel, Qt.AlignmentFlag.AlignCenter)
+        container.setAlignment(self.currentExerciseCount, Qt.AlignmentFlag.AlignCenter)
+        container.setAlignment(self.image, Qt.AlignmentFlag.AlignCenter)
+        container.setAlignment(self.currentExerciseLabel, Qt.AlignmentFlag.AlignCenter)
+        container.setAlignment(self.nextExerciseName, Qt.AlignmentFlag.AlignCenter)
         exerciseContainer.addLayout(container, stretch=2)
         # exerciseContainer.addLayout(nextContainer, stretch=1)
         layout.addLayout(exerciseContainer)
@@ -176,8 +176,8 @@ class SessionDialog(QDialog):
         stopButton.clicked.connect(self.onSessionStopped)
         layout.addWidget(stopButton)
 
-        layout.setAlignment(container, Qt.Alignment.AlignCenter)
-        layout.setAlignment(stopButton, Qt.Alignment.AlignRight)
+        layout.setAlignment(container, Qt.AlignmentFlag.AlignCenter)
+        layout.setAlignment(stopButton, Qt.AlignmentFlag.AlignRight)
 
     def startFreestyle(self):
         # Set connection

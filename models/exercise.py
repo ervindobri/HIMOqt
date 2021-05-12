@@ -1,6 +1,3 @@
-from pynput.keyboard import Key, KeyCode
-
-
 class Exercise:
     def __init__(self,
                  name: str = "Exercise",
