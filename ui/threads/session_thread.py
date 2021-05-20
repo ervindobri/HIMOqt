@@ -15,5 +15,6 @@ class SessionThread(QThread):
         exists = self.classification.model_exists()
         while exists:
             res = self.classification.Predict()
+            print(res)
             self.exerciseResult.emit(res)
 

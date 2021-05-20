@@ -130,7 +130,7 @@ class AddPatientDialog(QDialog):
                 }
                 json.dump(content, f)
                 f.close()
-
+            self.close()
             if os.path.exists(DATA_PATH + str(patient.id - 1) + '.xyz'):
                 os.rename(DATA_PATH + str(patient.id - 1) + '.xyz', DATA_PATH + str(patient.id) + '.xyz')
         else:

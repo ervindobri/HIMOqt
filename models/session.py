@@ -77,7 +77,7 @@ class Session:
             if key == code:
                 res = next(temp, None)
 
-        name = next((x.name for x in self.exercises if x.code == res), "NO NEXT")
+        name = next((x.name for x in self.exercises if x.code == res), "Standing on toes")
         return name
 
     # Get current reps: done/total

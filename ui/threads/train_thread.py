@@ -7,6 +7,7 @@ from helpers.classification import Classification
 class TrainThread(QThread):
     taskFinished = QtCore.pyqtSignal()
 
+
     def __init__(self,
                  classify: Classification = None,
                  exercise: str = None
@@ -14,9 +15,12 @@ class TrainThread(QThread):
         QThread.__init__(self)
         self.classify = classify
         self.exercise = exercise
-        self.result = None
+        # self.result = None
+        self.acc = 0
+        self.loss = 0.0
 
     def run(self):
-        result = self.classify.TrainEMG()
+        acc, loss = self.classify.TrainEMG()
         self.taskFinished.emit()
-        self.result = result
+        self.acc = acc
+        self.loss = loss

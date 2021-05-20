@@ -6,6 +6,7 @@ class CustomDialog:
     @staticmethod
     def message(title, text, info):
         msg = QMessageBox()
+        msg.setStyleSheet("background-color: #fefefe;")
         msg.setWindowTitle(title)
         msg.setText(text)
         msg.setInformativeText(info)

@@ -55,7 +55,7 @@ class ServerTab(QWidget):
 
         self.pipeNameEdit.setStyleSheet(QStyles.lineEditStyle)
         self.pipeNameEdit.setPlaceholderText('pipe name...')
-        self.pipeNameEdit.setText('paul')
+        self.pipeNameEdit.setText('50000')
 
         layout.addWidget(QLabel('Below you can setup your connection with the Game'))
         layout.addWidget(self.pipeNameEdit)
@@ -91,9 +91,7 @@ class ServerTab(QWidget):
             image.setFixedSize(40, 15)
 
     def stopListen(self, image):
-        self.communicationThread.terminate()
-        image.setColor(RED)
-        image.setFixedSize(30, 15)
-
-    def startListen(self):
-        self.communicationThread.start()
+        ret = self.socketCommunication.close_client()
+        if ret:
+            image.setColor(RED)
+            image.setFixedSize(30, 15)

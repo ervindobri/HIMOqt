@@ -1,7 +1,9 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 
 from helpers.classification import Classification
+from helpers.constants import RESOURCES_PATH
 from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.calibrate_dialog import CalibrateDialog
 from ui.widgets.dialogs.integrated_session_dialog import IntegratedSessionDialog

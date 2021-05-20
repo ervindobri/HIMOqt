@@ -4,14 +4,13 @@ import threading
 import time
 from functools import reduce
 
-from tensorflow.keras.activations import relu
-from tensorflow import keras
-from tensorflow.keras import regularizers
 import myo
 import numpy as np
-from tensorflow.python.keras.activations import softmax
+
+from keras.activations import relu, softmax
+import tensorflow.keras as keras
+from keras import regularizers
 from tensorflow.keras.models import load_model
-# from tensorflow_addons.callbacks import TQDMProgressBar
 
 import helpers.stream_service as stream
 from helpers.constants import *
@@ -65,10 +64,15 @@ class Classification:
         self.firestore = FirestoreDatabase()
         self.current_exercise = 0
 
-    def set_patient(self, patient):
-        self.patient = patient
-        self.subject_name = self.patient.name
-        self.subject_age = self.patient.age
+    def set_patient(self, patient=None):
+        if patient is not None:
+            self.patient = patient
+            self.subject_name = self.patient.name
+            self.subject_age = self.patient.age
+        else:
+            self.patient = None
+            self.subject_name = ""
+            self.subject_age = 0
 
     def model_exists(self):
         try:
@@ -179,21 +183,26 @@ class Classification:
         return validation_averages
 
     def Predict(self):
-        listener = stream.PredictListener(self.validation_samples)
-        if self.hub.running:
-            self.hub.stop()
-        self.hub.run(listener.on_event, 1000)
-        while len(data) < samples:
-            pass
+        try:
+            listener = stream.PredictListener(self.validation_samples)
+            if self.hub.running:
+                self.hub.stop()
+            self.hub.run(listener.on_event, 1000)
+            while len(data) < samples:
+                pass
 
-        current_data = data[-samples:]  # get last nr_of_samples elements from list
-        validation_data = self.calculate_validated_data(current_data)
-        predictions = self.model.predict(validation_data, batch_size=self.batch_size)
-        predicted_value = np.argmax(predictions[0])
-        data.clear()
-        self.hub.stop()
-        self.last_predictions.append(int(predicted_value))
-        return self.CalculatePrediction(predicted_value)
+            current_data = data[-samples:]  # get last nr_of_samples elements from list
+            validation_data = self.calculate_validated_data(current_data)
+            predictions = self.model.predict(validation_data, batch_size=self.batch_size)
+            predicted_value = np.argmax(predictions[0])
+            data.clear()
+            self.hub.stop()
+            self.last_predictions.append(int(predicted_value))
+            return self.CalculatePrediction(predicted_value)
+        except Exception as e:
+            print(e)
+            return "Unknown"
+
 
     # Prevent holding if patient is holding an exercise, make it rest
     def PreventHolding(self, value):
@@ -344,14 +353,11 @@ class Classification:
         train_data = all_shuffled_data[0:number_of_training_samples, :]
         train_labels = all_shuffled_labels[0:number_of_training_samples, ]
         print("Length of train data is ", train_data.shape)
-
         validation_data = all_shuffled_data[number_of_training_samples:total_samples, :]
         validation_labels = all_shuffled_labels[number_of_training_samples:total_samples, ]
         print("Length of validation data is ", validation_data.shape, " validation labels is ", validation_labels.shape)
 
         print("Building model...")
-        instructions = "Building model..."
-
         model = keras.Sequential([
             keras.layers.Dense(8, activation=relu, input_dim=8, kernel_regularizer=regularizers.l2(0.1)),
             keras.layers.BatchNormalization(),
@@ -382,7 +388,7 @@ class Classification:
         save_path = TRAINING_MODEL_PATH + self.subject_name + '.h5'
         model.save(save_path)
         self.history = history.history
-        return history.history
+        return history.history['val_acc'][-1]*100, history.history['val_loss'][-1]
 
     def DisplayResult(self, data):
         history = data

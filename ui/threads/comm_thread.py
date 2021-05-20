@@ -23,10 +23,13 @@ class CommThread(QThread):
         self.communication.start_listen()
         while True:
             self.replySignal.emit(self.classify.current_exercise)
+            start = time.time()
             res, reply = self.communication.listen(self.classify.current_exercise)
+            end = time.time()
+            print((end-start)*1000, " ms")
             if not res:
                 break
 
     def stop(self):
-        # self.communication.stop_listen()
+        self.communication.stop_listen()
         self.terminate()

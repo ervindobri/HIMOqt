@@ -32,7 +32,7 @@ class IntegratedSessionDialog(QDialog):
         self.communicationThread.replySignal.connect(self.onPipeReply)
 
     def onPipeReply(self, value):
-        self.currentCodePipe.setText("Sent: " + str(value))
+            self.currentCodePipe.setText("Sent: " + str(value))
 
     def onResultExercise(self, value):
         self.currentExerciseLabel.setText(value)
@@ -56,6 +56,7 @@ class IntegratedSessionDialog(QDialog):
 
     def startGameSession(self):
         try:
+            print(self.sessionThread.isRunning())
             if not self.sessionThread.isRunning():
                 self.communicationThread.start()
                 self.sessionThread.start()

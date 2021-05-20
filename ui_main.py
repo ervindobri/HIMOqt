@@ -25,7 +25,6 @@ class HIMOApp(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setCentralWidget(self.mainWidget)
         self.setMinimumSize(700, 400)
-
         self.show()
 
 

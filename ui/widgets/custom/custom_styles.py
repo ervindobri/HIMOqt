@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QLabel
 
 
 class QStyles:
+    primaryColor = "20c1dc"
     # font = QLabel('').font()
 
     # @staticmethod
@@ -26,7 +27,7 @@ class QStyles:
                 background-color: #fefefe;
             }"""
     comboStyle = """
-        QWidget
+        QComboBox
         {
             background-color: white;
             border: 1px solid #20c1dc;
@@ -64,7 +65,7 @@ class QStyles:
     tabStyle = """
         QTabWidget {background-color: white; border: none;}
         QTabWidget::pane {
-         border: none;
+            border: none;
             background: white;
           }
         QTabBar {background-color: white;}
@@ -127,9 +128,9 @@ class QStyles:
             }
             QPushButton:hover
     {
-            background-color: #199fb5;
-            color: white;
-            border: 1px solid #20c1dc;
+            background-color: white;
+            font-weight: bold;
+            border: 3px solid #20c1dc;
             border-radius: 7px;
     }
         """

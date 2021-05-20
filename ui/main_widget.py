@@ -1,12 +1,14 @@
 import json
+import os
 from os import listdir
 from os.path import isfile, join
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout,\
-    QPushButton, QListWidget, QTabWidget
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, \
+    QPushButton, QListWidget, QTabWidget, QMessageBox
 from helpers.classification import Classification
 from helpers.communication import LocalCommunication
-from helpers.constants import PATIENTS_PATH
+from helpers.constants import PATIENTS_PATH, RESOURCES_PATH
 from models.patient import Patient
 from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.add_patient_dialog import AddPatientDialog
@@ -18,6 +20,7 @@ from ui.widgets.tabs.status_tab import StatusTab
 class MainWidget(QWidget):
     def __init__(self, parent):
         super().__init__()
+        self.deletePatientButton = QPushButton()
         self.classification = Classification(
             batch_size=25,
         )
@@ -30,7 +33,8 @@ class MainWidget(QWidget):
         self.actionsTab = ActionsTab(
             classification=self.classification,
             communication=self.communication,
-        patient=self.selectedPatient)
+            patient=self.selectedPatient
+        )
         self.statusTab = StatusTab()
         self.serverTab = ServerTab(
             classification=self.classification,
@@ -49,18 +53,17 @@ class MainWidget(QWidget):
         self.statusLayout = QVBoxLayout()
         self.serverLayout = QVBoxLayout()
 
-
         self.initUi()
         self.setStyles()
-        self.setStyleSheet("QWidget {background-color: white;} ")
+        # self.setStyleSheet("QWidget {background-color: white;} ")
         self.loadListItems()
         self.connections()
 
-
-
     def initUi(self):
+        font = QLabel().font()
+        font.setPointSize(12)
         self.tabLayout.addTab(self.actionsTab, "Actions")
-        self.tabLayout.addTab(self.statusTab, "Status")
+        # self.tabLayout.addTab(self.statusTab, "Status")
         self.tabLayout.addTab(self.serverTab, "Server")
         # Status layout
 
@@ -71,12 +74,24 @@ class MainWidget(QWidget):
         self.infoLayout.addLayout(self.statusLayout)
         self.infoLayout.addLayout(self.serverLayout)
 
+        icon = QIcon(RESOURCES_PATH + 'delete-blue.png')
+        self.deletePatientButton.setFixedSize(35, 35)
+        self.deletePatientButton.setStyleSheet(QStyles.outlineButtonStyle)
+        self.deletePatientButton.setIcon(icon)
+        self.deletePatientButton.setIconSize(QSize(30, 30))
+        self.deletePatientButton.clicked.connect(self.openDeletePatientDialog)
+        # TODO: delete patient data
+
         self.addPatientButton.setFixedHeight(35)
         self.addPatientButton.setStyleSheet(QStyles.styledButtonStyle)
+        self.addPatientButton.setFont(font)
         self.addPatientButton.clicked.connect(self.openAddPatientDialog)
         # self.listLayout.setFixedHeight(self.window().height())
         listContainer = QVBoxLayout()
-        listContainer.addWidget(self.addPatientButton)
+        actions = QHBoxLayout()
+        actions.addWidget(self.addPatientButton)
+        actions.addWidget(self.deletePatientButton)
+        listContainer.addLayout(actions)
         listContainer.addWidget(self.listLayout)
         self.listLayout.setFixedWidth(200)
         self.listLayout.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -93,16 +108,29 @@ class MainWidget(QWidget):
 
         self.listLayout.clicked.connect(self.listClicked)
 
+    def openDeletePatientDialog(self):
+        # open messagebox
+        if self.selectedPatient is not None:
+            ret = QMessageBox.question(self,
+                                       'Delete patient',
+                                       "Are you sure you want to delete patient?",
+                                       QMessageBox.StandardButton.Yes,
+                                       QMessageBox.StandardButton.Cancel
+                                       )
+
+            if ret == QMessageBox.StandardButton.Yes:
+                os.remove(PATIENTS_PATH + self.selectedPatient.name + '-' + self.selectedPatient.age + '.json')
+                self.actionsTab.patient = None
+                self.classification.set_patient()
+                self.loadListItems()
+                print('Patient deleted!')
 
     def openAddPatientDialog(self):
-        # todo: open dialog
         dialog = AddPatientDialog(self,
                                   self.patient
                                   )
         dialog.exec()
         self.loadListItems()
-
-
 
     # Connect when list element is clicked, set patient and load back info
     def listClicked(self, index):
@@ -124,11 +152,8 @@ class MainWidget(QWidget):
                 self.selectedPatient = patient
                 self.actionsTab.patient = patient
                 self.classification.set_patient(patient)
-                print(self.selectedPatient)
+                print("Selectedpatient:", self.selectedPatient)
 
-    def onLoadButtonClicked(self):
-        # TODO: load back parameters and info
-        pass
 
     def loadListItems(self):
         self.listLayout.clear()

@@ -12,6 +12,7 @@ from ui.widgets.custom.custom_styles import QStyles
 class SessionDialog(QDialog):
     def __init__(self, classification, parent=None):
         super().__init__(parent)
+        self.window().setWindowTitle('Standalone Session')
         self.image = QLabel()
         self.freestyleTimer = QTimer()
         self.freestyleTime = QTime(0, 5, 0)
@@ -46,13 +47,9 @@ class SessionDialog(QDialog):
     def initUi(self):
         self.tabLayout.addTab(self.parametersTab, "Parameters")
         self.tabLayout.addTab(self.exercisesTab, "Exercises")
-        self.tabLayout.addTab(self.freestyleTab, "Freestyle")
-        self.tabLayout.addTab(self.resultsTab, "Results")
         self.tabLayout.setStyleSheet(QStyles.tabStyle)
-
         self.setParametersTab()
         self.setExercisesTab()
-        self.setResultsTab()
 
     def setParametersTab(self):
         layout = QVBoxLayout()
@@ -83,15 +80,15 @@ class SessionDialog(QDialog):
         self.repsInput.setFont(font)
         self.repsInput.setContentsMargins(10, 10, 10, 30)
 
-        label2 = QLabel('With pauses of (second):')
+        label2 = QLabel('Pause between exercises(second):')
         label2.setFont(font)
         label2.setStyleSheet(QStyles.labelStyle)
 
-        self.pause.setStyleSheet(QStyles.comboStyle)
+        self.pause.setStyleSheet("border: 1px solid #20c1dc; border-radius: 7px;")
         self.pause.setFixedSize(200, 35)
         self.pause.setFont(font)
         self.pause.setContentsMargins(10, 10, 10, 30)
-
+        self.pause_time = self.pause.text()
         containerLayout.addWidget(label1)
         containerLayout.addWidget(self.repsInput)
         containerLayout.addWidget(label2)
@@ -112,6 +109,7 @@ class SessionDialog(QDialog):
 
     def startSession(self):
         self.reps = self.repsInput.currentText()
+        self.pause_time = int(self.pause.text())
         print("reps:", self.reps)
 
         # Set session properties
@@ -190,6 +188,7 @@ class SessionDialog(QDialog):
         self.currentExerciseCount.setText(self.freestyleTimeEdit.text())
         # Set texts:
         self.currentExerciseLabel.setText("Freestyle")
+        self.nextExerciseName.setText("Next: All completed.")
         pass
 
     def onResultExercise(self, value):
@@ -205,16 +204,18 @@ class SessionDialog(QDialog):
             # If standing on toes: start timer
             if self.session.current_exercise_name == STANDING:
                 if not self.pauseTimer.isActive():
-                    self.nextExerciseName.setText("")
+                    self.nextExerciseName.setText("Next: Freestyle - 5min")
 
                     self.pause_time_left = self.pause_time * 2
                     self.pauseTimer.start(1000)
             else:
                 self.currentExerciseCount.setText(self.session.current_status())
+                self.nextExerciseName.setText("Next: Pause " + str(self.session.pause) + "secs")
 
         else:
             # TODO: set timer and start, after pause time -> set flag
             self.currentExerciseLabel.setText("Pause")
+            self.nextExerciseName.setText("Next: " + self.session.next_exercise_name)
             if not self.pauseTimer.isActive():
                 self.session.done += 1
                 self.pause_time_left = self.pause_time
@@ -251,14 +252,7 @@ class SessionDialog(QDialog):
 
     def onSessionStopped(self):
         self.sessionThread.terminate()
+        self.freestyleTimer.stop()
+        self.pauseTimer.stop()
         print("Session thread stopped!")
         self.currentExerciseLabel.setText("Finished")
-
-    def setFreestyleTab(self):
-        layout = QVBoxLayout()
-        self.freestyleTab.setLayout(layout)
-        # self.freestyleTimer = QTimer()
-        # layout.addWidget()
-
-    def setResultsTab(self):
-        pass

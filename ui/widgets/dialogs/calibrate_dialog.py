@@ -70,7 +70,8 @@ class CalibrateDialog(QDialog):
         self.progress.setRange(0, 1)
         self.progress.setValue(1)
         CustomDialog.message("Training information",
-                             "Training model finished successfully",
+                             "Training model finished successfully.Accuracy: {} %, val. loss: {}"
+                             .format(self.trainThread.acc, self.trainThread.loss),
                              "")
         self.trained = True
 
@@ -134,6 +135,9 @@ class CalibrateDialog(QDialog):
             self.progress.setRange(0, 0)
             # self.close()
         elif self.trained:
-            self.close()
+            self.accept()
         else:
+            CustomDialog.message("Training information",
+                                 "You must record all exercises to continue!",
+                                 "")
             pass
