@@ -7,6 +7,7 @@ from helpers.constants import PREDEFINED_PARAMETERS, RESOURCES_PATH, STANDING
 from models.session import Session
 from ui.threads.session_thread import SessionThread
 from ui.widgets.custom.custom_styles import QStyles
+from ui.widgets.dialogs.show_dialog import CustomDialog
 
 
 class SessionDialog(QDialog):
@@ -43,6 +44,8 @@ class SessionDialog(QDialog):
 
         self.sessionThread = SessionThread(classification)
         self.sessionThread.exerciseResult.connect(self.onResultExercise)
+        self.sessionThread.exists.connect(self.modelExists)
+
 
     def initUi(self):
         self.tabLayout.addTab(self.parametersTab, "Parameters")
@@ -181,6 +184,7 @@ class SessionDialog(QDialog):
         # Set connection
         self.sessionThread.exerciseResult.disconnect()
         self.sessionThread.exerciseResult.connect(self.onResultFreestyle)
+
         # Start timer
         self.freestyleTimeEdit.setDisplayFormat("hh:mm:ss")
         self.freestyleTimer.timeout.connect(self.freestyle_timeout)
@@ -190,6 +194,14 @@ class SessionDialog(QDialog):
         self.currentExerciseLabel.setText("Freestyle")
         self.nextExerciseName.setText("Next: All completed.")
         pass
+
+    # Show messagebox if model does not exist -> go to calibrate
+    def modelExists(self, value):
+        if not value:
+            print("Not exists!")
+            CustomDialog.warningMessage(
+                text="No model for patient",
+                info="You need to calibrate the patient in order to do a session.")
 
     def onResultExercise(self, value):
         self.currentExerciseLabel.setText(self.session.current_exercise_name)
@@ -214,6 +226,7 @@ class SessionDialog(QDialog):
 
         else:
             # TODO: set timer and start, after pause time -> set flag
+            print("---------NEXT:" + self.session.next_exercise_name)
             self.currentExerciseLabel.setText("Pause")
             self.nextExerciseName.setText("Next: " + self.session.next_exercise_name)
             if not self.pauseTimer.isActive():
@@ -229,7 +242,8 @@ class SessionDialog(QDialog):
             print("Time left!")
             self.pauseTimer.stop()
             self.session.pause_active = False
-
+            if self.session.next_exercise_name == "Standing on toes":
+                self.sessionThread.holding = True
             if self.session.session_finished:
                 self.startFreestyle()
                 self.pauseTimer.stop()
@@ -256,3 +270,10 @@ class SessionDialog(QDialog):
         self.pauseTimer.stop()
         print("Session thread stopped!")
         self.currentExerciseLabel.setText("Finished")
+
+    def reject(self):
+        if self.sessionThread.isRunning():
+            self.sessionThread.terminate()
+            self.freestyleTimer.stop()
+            self.pauseTimer.stop()
+            super().reject()

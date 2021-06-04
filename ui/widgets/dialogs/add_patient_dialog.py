@@ -118,6 +118,7 @@ class AddPatientDialog(QDialog):
     def onSaveButtonClicked(self):
         self.patient.name = self.nameInput.text()
         self.patient.age = self.ageInput.text()
+        self.patient.parameters = self.paraCombo.currentText()
         patient = self.patient
         if patient.name != "" and patient.age != "" and patient.parameters is not None:
             with open(PATIENTS_PATH + patient.name + '-' + str(patient.age) + '.json', 'w') as f:

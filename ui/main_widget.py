@@ -23,6 +23,7 @@ class MainWidget(QWidget):
         self.deletePatientButton = QPushButton()
         self.classification = Classification(
             batch_size=25,
+            epochs=500,
         )
         self.communication = LocalCommunication()
 

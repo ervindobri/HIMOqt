@@ -76,9 +76,13 @@ class Classification:
 
     def model_exists(self):
         try:
-            self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
-            print("Model loaded successfully: ", self.model)
-            return True
+            FILE = TRAINING_MODEL_PATH + self.subject_name + '_' + str(self.subject_age) + '.h5'
+            if os.path.exists(FILE):
+                self.model = load_model(FILE)
+                print("Model loaded successfully: ", self.model)
+                return True
+            else:
+                return False
         except FileNotFoundError:
             return False
 
@@ -166,7 +170,7 @@ class Classification:
 
     def LoadModel(self):
         try:
-            self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+            self.model = load_model(TRAINING_MODEL_PATH + self.subject_name + '_' + str(self.subject_age) + '.h5')
         except:
             pass
 
@@ -182,7 +186,7 @@ class Classification:
 
         return validation_averages
 
-    def Predict(self):
+    def Predict(self, holding):
         try:
             listener = stream.PredictListener(self.validation_samples)
             if self.hub.running:
@@ -198,24 +202,24 @@ class Classification:
             data.clear()
             self.hub.stop()
             self.last_predictions.append(int(predicted_value))
-            return self.CalculatePrediction(predicted_value)
+            return self.CalculatePrediction(predicted_value, holding)
         except Exception as e:
             print(e)
             return "Unknown"
 
-
     # Prevent holding if patient is holding an exercise, make it rest
     def PreventHolding(self, value):
         # If the previous exercise was this, make it rest for fluidity
-        if len(self.last_predictions) > 2 and self.last_predictions[-2] == value and self.last_predictions[-2] != 0:
+        if len(self.last_predictions) > 2 and self.last_predictions[-2] == value:
             self.current_exercise = 1
             return "Rest"
-        self.current_exercise = value+1
+        self.current_exercise = value + 1
         return self.exercises[value].name
 
     # Helper function if exercise is holding, classify it differently
     def HoldingExercise(self, value):
         # check if last 3 elements in list were exercise
+        print(value)
         if value == 0:
             if all(x == value for x in self.last_predictions[-3:]):
                 # Holding
@@ -233,18 +237,19 @@ class Classification:
             return "Rest"
 
     # According to past results, choose correct exercise
-    def CalculatePrediction(self, value):
+    def CalculatePrediction(self, value, holding):
         # if value == 0:
-            # print("tiptoe")
-        return self.HoldingExercise(value)
-        # else:
-        #     toe clenches
-        #     return self.PreventHolding(value)
+        # print("tiptoe")
+        if holding:
+            return self.HoldingExercise(value)
+        else:
+            # toe clenches
+            return self.PreventHolding(value)
 
     def TestLatency(self, reps):
         average = 0.0
         counter = 0
-        model = load_model(TRAINING_MODEL_PATH + self.subject_name + '.h5')
+        model = load_model(TRAINING_MODEL_PATH + self.subject_name + '_' + str(self.subject_age) + '.h5')
         validation_averages = np.zeros((int(self.validation_averages), 8))
         listener = stream.PredictListener(self.validation_samples)
 
@@ -385,10 +390,10 @@ class Classification:
         print("Training model successful!")
         print("Max accuracy:", history.history['val_acc'][-1], ", loss:", history.history['val_loss'][-1])
         print("Saving model for later...")
-        save_path = TRAINING_MODEL_PATH + self.subject_name + '.h5'
+        save_path = TRAINING_MODEL_PATH + self.subject_name + '_' + str(self.subject_age) + '.h5'
         model.save(save_path)
         self.history = history.history
-        return history.history['val_acc'][-1]*100, history.history['val_loss'][-1]
+        return history.history['val_acc'][-1] * 100, history.history['val_loss'][-1]
 
     def DisplayResult(self, data):
         history = data
