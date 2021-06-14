@@ -88,3 +88,5 @@ class IntegratedSessionDialog(QDialog):
             self.startButton.setText("Start Session")
             self.startButton.setStyleSheet(QStyles.styledButtonStyle)
             super().reject()
+        else:
+            super().reject()

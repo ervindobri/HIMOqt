@@ -277,3 +277,5 @@ class SessionDialog(QDialog):
             self.freestyleTimer.stop()
             self.pauseTimer.stop()
             super().reject()
+        else:
+            super().reject()

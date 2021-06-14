@@ -1,3 +1,5 @@
+import json
+
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from helpers.constants import RESOURCES_PATH
@@ -6,7 +8,8 @@ from helpers.constants import RESOURCES_PATH
 class GDriveUploader:
     def __init__(self):
         # Create GoogleDrive instance with authenticated GoogleAuth instance.
-        GoogleAuth.DEFAULT_SETTINGS['client_config_file'] = RESOURCES_PATH + 'client_secret_861732897278-35g552go20trvgj7prjhogtkf84dj1s4.apps.googleusercontent.com.json'
+        GoogleAuth.DEFAULT_SETTINGS[
+            'client_config_file'] = RESOURCES_PATH + 'client_secret_861732897278-35g552go20trvgj7prjhogtkf84dj1s4.apps.googleusercontent.com.json'
         gauth = GoogleAuth()
         # Try to load saved client credentials
         gauth.LoadCredentialsFile(RESOURCES_PATH + "mycreds.txt")
@@ -15,6 +18,7 @@ class GDriveUploader:
             gauth.LocalWebserverAuth()
         elif gauth.access_token_expired:
             # Refresh them if expired
+            print("Refreshing token...")
             gauth.Refresh()
         else:
             # Initialize the saved creds
@@ -25,7 +29,7 @@ class GDriveUploader:
 
     def upload(self, file_name, file):
         print("Uploading ", file_name)
-        gfolder_id = "1J3x3rxRZ4EEljGRVLIic1zmfYp4MO-Zw" # HIMO-2021 folder id
+        gfolder_id = "1J3x3rxRZ4EEljGRVLIic1zmfYp4MO-Zw"  # HIMO-2021 folder id
         file1 = self.drive.CreateFile({
             'title': file_name,
             "parents": [

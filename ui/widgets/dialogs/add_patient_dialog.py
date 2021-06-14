@@ -52,11 +52,14 @@ class AddPatientDialog(QDialog):
         self.saveButton.setStyleSheet(QStyles.styledButtonStyle)
         self.paraLabel.setStyleSheet(QStyles.labelStyle)
 
-    def getPatientInfo(self):
+    def getPatientId(self):
         file = [f for f in listdir(PATIENTS_PATH) if isfile(join(PATIENTS_PATH, f))]
         id = len(file) + 1
+        return id
+
+    def getPatientInfo(self):
         patient = Patient(
-            id,
+            self.getPatientId(),
             self.nameInput.text(),
             self.ageInput.text(),
         )
@@ -116,10 +119,12 @@ class AddPatientDialog(QDialog):
         self.patient.parameters = self.paraCombo.currentText()
 
     def onSaveButtonClicked(self):
+        self.patient.id = self.getPatientId()
         self.patient.name = self.nameInput.text()
         self.patient.age = self.ageInput.text()
         self.patient.parameters = self.paraCombo.currentText()
         patient = self.patient
+        print(patient)
         if patient.name != "" and patient.age != "" and patient.parameters is not None:
             with open(PATIENTS_PATH + patient.name + '-' + str(patient.age) + '.json', 'w') as f:
                 content = {

@@ -8,6 +8,7 @@ from ui.widgets.custom.custom_styles import QStyles
 from ui.widgets.dialogs.calibrate_dialog import CalibrateDialog
 from ui.widgets.dialogs.integrated_session_dialog import IntegratedSessionDialog
 from ui.widgets.dialogs.session_dialog import SessionDialog
+from ui.widgets.dialogs.show_dialog import CustomDialog
 
 
 class ActionsTab(QWidget):
@@ -79,9 +80,10 @@ class ActionsTab(QWidget):
 
     def onCalibrateClicked(self):
         print("Calibrating model")
-        print(self.patient)
         if self.patient is not None:
             dialog = CalibrateDialog(
                 classification=self.classification,
                 patient=self.patient)
             dialog.exec()
+        else:
+            CustomDialog.warningMessage("No patient selected!", "You must select a patient first from the list.")

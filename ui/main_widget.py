@@ -60,6 +60,7 @@ class MainWidget(QWidget):
         self.loadListItems()
         self.connections()
 
+
     def initUi(self):
         font = QLabel().font()
         font.setPointSize(12)
@@ -155,7 +156,6 @@ class MainWidget(QWidget):
                 self.classification.set_patient(patient)
                 print("Selectedpatient:", self.selectedPatient)
 
-
     def loadListItems(self):
         self.listLayout.clear()
         files = [f for f in listdir(PATIENTS_PATH) if isfile(join(PATIENTS_PATH, f))]
@@ -165,13 +165,3 @@ class MainWidget(QWidget):
     def setStyles(self):
         self.tabLayout.setStyleSheet(QStyles.tabStyle)
         self.listLayout.setStyleSheet(QStyles.listStyle)
-
-    def onSubjectNameSet(self):
-        # todo open dialog with calibration
-        self.classification.subject_name = self.nameInput.text()
-        print("Setting name.")
-
-    def onSubjectAgeSet(self):
-        # todo open dialog with calibration
-        self.classification.subject_age = self.ageInput.text()
-        print("Setting age:", self.classification.subject_age)

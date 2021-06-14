@@ -55,7 +55,7 @@ class ServerTab(QWidget):
 
         self.pipeNameEdit.setStyleSheet(QStyles.lineEditStyle)
         self.pipeNameEdit.setPlaceholderText('pipe name...')
-        self.pipeNameEdit.setText('50000')
+        self.pipeNameEdit.setText('4130')
 
         layout.addWidget(QLabel('Below you can setup your connection with the Game'))
         layout.addWidget(self.pipeNameEdit)

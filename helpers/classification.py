@@ -322,6 +322,7 @@ class Classification:
                 'emg': self.all_raw
             }
             uploader.upload(str(self.patient.id) + '.json', json.dumps(content))
+            print("Data saved to google drive: " + str(self.patient.id) + '.json')
         except Exception as e:
             print(e)
 
