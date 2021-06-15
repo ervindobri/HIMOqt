@@ -110,6 +110,10 @@ class QStyles:
             border: 1px solid #20c1dc;
             border-radius: 7px;
         }
+    QPushButton:disabled {
+        background-color: #c9f7ff;
+        color: #20c1dc;
+    }
     QPushButton:hover
     {
             background-color: #199fb5;

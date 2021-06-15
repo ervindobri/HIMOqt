@@ -11,8 +11,11 @@ from ui.widgets.dialogs.show_dialog import CustomDialog
 
 
 class SessionDialog(QDialog):
-    def __init__(self, classification, parent=None):
+    def __init__(self,
+                 classification,
+                 parent=None):
         super().__init__(parent)
+        self.classification = classification
         self.window().setWindowTitle('Standalone Session')
         self.image = QLabel()
         self.freestyleTimer = QTimer()
@@ -82,6 +85,8 @@ class SessionDialog(QDialog):
         self.repsInput.currentTextChanged.connect(self.onRepsChanged)
         self.repsInput.setFont(font)
         self.repsInput.setContentsMargins(10, 10, 10, 30)
+
+        self.repsInput.setCurrentIndex(PREDEFINED_PARAMETERS.index(self.classification.patient.parameters))
 
         label2 = QLabel('Pause between exercises(second):')
         label2.setFont(font)
@@ -171,14 +176,14 @@ class SessionDialog(QDialog):
         # exerciseContainer.addLayout(nextContainer, stretch=1)
         layout.addLayout(exerciseContainer)
 
-        stopButton = QPushButton('Stop')
-        stopButton.setStyleSheet(QStyles.outlineButtonStyle)
-        stopButton.setFixedSize(120, 35)
-        stopButton.clicked.connect(self.onSessionStopped)
-        layout.addWidget(stopButton)
+        self.stopButton = QPushButton('Stop')
+        self.stopButton.setStyleSheet(QStyles.outlineButtonStyle)
+        self.stopButton.setFixedSize(120, 35)
+        self.stopButton.clicked.connect(self.onSessionStopped)
+        layout.addWidget(self.stopButton)
 
         layout.setAlignment(container, Qt.AlignmentFlag.AlignCenter)
-        layout.setAlignment(stopButton, Qt.AlignmentFlag.AlignRight)
+        layout.setAlignment(self.stopButton, Qt.AlignmentFlag.AlignRight)
 
     def startFreestyle(self):
         # Set connection
@@ -202,6 +207,8 @@ class SessionDialog(QDialog):
             CustomDialog.warningMessage(
                 text="No model for patient",
                 info="You need to calibrate the patient in order to do a session.")
+            self.stopButton.setText('Close')
+
 
     def onResultExercise(self, value):
         self.currentExerciseLabel.setText(self.session.current_exercise_name)
@@ -265,11 +272,15 @@ class SessionDialog(QDialog):
         pass
 
     def onSessionStopped(self):
-        self.sessionThread.terminate()
-        self.freestyleTimer.stop()
-        self.pauseTimer.stop()
-        print("Session thread stopped!")
-        self.currentExerciseLabel.setText("Finished")
+        if self.stopButton.text() == 'Stop':
+            self.sessionThread.terminate()
+            self.freestyleTimer.stop()
+            self.pauseTimer.stop()
+            print("Session thread stopped!")
+            self.currentExerciseLabel.setText("Finished")
+            self.stopButton.setText('Close')
+        else:
+            self.accept()
 
     def reject(self):
         if self.sessionThread.isRunning():

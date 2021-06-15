@@ -11,6 +11,7 @@ class Patient:
         self.parameters = parameters
 
     def __str__(self) -> str:
-        return "Id" + str(self.id) + ", Name:" + self.name + ", Age:" + str(self.age) + ", Parameters:" + str(self.parameters)
+        return "Id" + str(self.id) + ", Name:" + self.name + ", Age:" + str(self.age) + \
+               ", Parameters:" + str(self.parameters)
 
 

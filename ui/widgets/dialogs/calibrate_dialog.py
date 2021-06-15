@@ -46,16 +46,23 @@ class CalibrateDialog(QDialog):
         label.setFont(font)
 
         layout.addWidget(label)
-        readyButton = QPushButton('Ready')
-        readyButton.setStyleSheet(QStyles.styledButtonStyle)
-        readyButton.clicked.connect(self.calibrateReady)
-        readyButton.setFixedSize(120, 35)
+        self.readyButton = QPushButton('Ready')
+        self.readyButton.setStyleSheet(QStyles.styledButtonStyle)
+        self.readyButton.clicked.connect(self.calibrateReady)
+        self.readyButton.setFixedSize(120, 35)
+        self.readyButton.setEnabled(False)
+
         self.progress = QProgressBar()
+        trainButton = QPushButton('Train')
+        trainButton.setStyleSheet(QStyles.styledButtonStyle)
+        trainButton.clicked.connect(self.trainModel)
+        trainButton.setFixedSize(120, 35)
 
         bottomContainer = QHBoxLayout()
         bottomContainer.addWidget(self.progress)
-        bottomContainer.addWidget(readyButton)
-        bottomContainer.setAlignment(readyButton, Qt.AlignmentFlag.AlignRight)
+        bottomContainer.addWidget(trainButton)
+        bottomContainer.addWidget(self.readyButton)
+        bottomContainer.setAlignment(self.readyButton, Qt.AlignmentFlag.AlignRight)
 
         layout.addWidget(exerciseContainer)
         layout.addLayout(bottomContainer)
@@ -73,7 +80,7 @@ class CalibrateDialog(QDialog):
                              "Training model finished successfully.Accuracy: {} %, val. loss: {}"
                              .format(self.trainThread.acc, self.trainThread.loss),
                              "")
-        self.trained = True
+        self.readyButton.setEnabled(True)
 
     def initUi(self):
         exerciseNames = [x.name for x in self.classification.exercises]
@@ -127,17 +134,16 @@ class CalibrateDialog(QDialog):
         self.images[index].setPixmap(QPixmap(RESOURCES_PATH + imagePath))
         self.buttons[index].setStyleSheet(QStyles.outlineButtonStyle)
 
-    def calibrateReady(self):
-        if all(x == True for x in self.recordReady) and not self.trained:
+    def trainModel(self):
+        if all(x for x in self.recordReady):
             # print("All true!")
             self.classification.save_data()
             self.trainThread.start()
             self.progress.setRange(0, 0)
-            # self.close()
-        elif self.trained:
-            self.accept()
         else:
             CustomDialog.message("Training information",
                                  "You must record all exercises to continue!",
                                  "")
-            pass
+
+    def calibrateReady(self):
+        self.accept()

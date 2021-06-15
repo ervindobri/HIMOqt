@@ -149,9 +149,10 @@ class LocalCommunication:
     def stop_listen(self):
         try:
             print("stopping listening")
-            self.connection_status = 1
-            self.responses['0'] = ('1', self.connection_status)
-            self.send_message('0')
+            if self.conn is not None:
+                self.connection_status = 1
+                self.responses['0'] = ('1', self.connection_status)
+                self.send_message('0')
         except Exception as e:
             print("StopListen exception: ", e)
 

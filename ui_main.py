@@ -33,8 +33,6 @@ class HIMOApp(QMainWindow):
         self.setMinimumSize(700, 400)
         self.show()
 
-
-
     def createMenuBar(self):
         menuBar = self.menuBar()
         # Help menu
@@ -50,7 +48,6 @@ class HIMOApp(QMainWindow):
         helpMenu.addAction(helpContentAction)
         helpMenu.addAction(aboutAction)
 
-
     def appAbout(self):
         print("About")
 
@@ -58,6 +55,7 @@ class HIMOApp(QMainWindow):
         print("Tutorial")
         dialog = TutorialDialog(self)
         dialog.exec()
+
 
 def main():
     myo.init(sdk_path=os.getcwd())
